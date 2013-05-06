@@ -19,7 +19,7 @@ class Registration():
   '''
 
   @staticmethod
-  def resample( input_file, target_file, output_file ):
+  def resample( input_file, target_file, output_file, interpolation=0 ):
     '''
     Resample the input image to match the target image.
     
@@ -46,7 +46,7 @@ class Registration():
     header = input_image.get_header()
 
     # resample the input to match the target
-    resampled_data, new_affine = resampler.resample( input_image.get_data(), affine, old_zooms, new_zooms, 0 )
+    resampled_data, new_affine = resampler.resample( input_image.get_data(), affine, old_zooms, new_zooms, interpolation )
 
     # save the resampled image
     klass = input_image.__class__
@@ -65,10 +65,11 @@ class Registration():
     output_directory
       the output directory
       
-    The final output file is 2deformed.nii.gz in the output directory.
+    The final output file is deformed.nii.gz in the output directory.
     '''
 
-    output_prefix = os.path.join( output_directory, os.path.splitext( os.path.basename( input_file ) )[0] )
+    #output_prefix = os.path.join( output_directory, os.path.splitext( os.path.basename( input_file ) )[0] )
+    output_prefix = os.path.normpath(output_directory) + os.sep
 
     # configure the ANTs environment
     cmd = 'export ANTSPATH=' + config.ANTS_BIN_DIR + ';'
