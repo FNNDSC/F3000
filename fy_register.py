@@ -5,7 +5,7 @@
 #
 
 # standard imports
-import os, shutil, sys, tempfile
+import glob, os, shutil, sys, tempfile
 
 # fyborg imports
 from _core import *
@@ -42,8 +42,17 @@ class FyRegister():
     input_file_name = os.path.splitext( os.path.basename( input_file ) )[0]
     target_file = os.path.join( tempdir, os.path.basename( options.target ) )
     resampled_file = os.path.join( tempdir, input_file_name + '_resampled.nii.gz' )
-    registered_file = os.path.join( tempdir, 'deformed.nii.gz' )
-    affine_file = os.path.join( tempdir, 'Affine.txt' )
+    splitted_dir = os.path.join( tempdir, 'splitted' )
+    if not os.path.exists( splitted_dir ):
+      os.mkdir( splitted_dir )
+    registered_dir = os.path.join( tempdir, 'registered' )
+    if not os.path.exists( registered_dir ):
+      os.mkdir( registered_dir )
+    registered_file = os.path.join( registered_dir, 'deformed.nii.gz' )
+    transform_file = os.path.join( registered_dir, 'Affine.txt' )
+    warped_dir = os.path.join( tempdir, 'warped' )
+    if not os.path.exists( warped_dir ):
+      os.mkdir( warped_dir )
     shutil.copyfile( options.input, input_file )
     shutil.copyfile( options.target, target_file )
 
@@ -53,14 +62,26 @@ class FyRegister():
       interpolation = 0  # nearest-neighbor interpolation
 
     # 1. STEP: resample the data
-    Registration.resample( input_file, target_file, resampled_file, interpolation )
+    #Registration.resample( input_file, target_file, resampled_file, interpolation )
 
-    # 2. STEP: register the resampled data
-    Registration.register( resampled_file, target_file, tempdir )
+    # 2. STEP: split the resampled volume
+    #Registration.splitDiffusion( resampled_file, splitted_dir )
+    splitted_files = Utility.natsort( glob.glob( os.path.join( splitted_dir, '*' ) ) )
 
-    # 3. STEP: copy registered data to output folder
-    shutil.copyfile( registered_file, os.path.join( options.output, input_file_name + '_registered.nii.gz' ) )
-    shutil.copyfile( affine_file, os.path.join( options.output, input_file_name + '_transform.txt' ) )
+    # 3. STEP: register the first resampled and splitted scan
+    #Registration.register( splitted_files[0], target_file, registered_dir )
+
+    # 4. STEP: apply transform to all splitted files
+    for s in splitted_files:
+      warped_output_file = os.path.join( warped_dir, os.path.basename( s ) )
+      #Registration.warp( s, target_file, transform_file, warped_output_file )
+
+    warped_files = Utility.natsort( glob.glob( os.path.join( warped_dir, '*' ) ) )
+
+    # 5. STEP: merge all warped files back to one volume and store it in the output folder
+    Registration.mergeDiffusion( warped_files, os.path.join( options.output, input_file_name + '_registered.nii.gz' ) )
+    shutil.copyfile( transform_file, os.path.join( options.output, input_file_name + '_transform.txt' ) )
+
 
 #
 # entry point
