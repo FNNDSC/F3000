@@ -62,19 +62,19 @@ class FyRegister():
       interpolation = 0  # nearest-neighbor interpolation
 
     # 1. STEP: resample the data
-    #Registration.resample( input_file, target_file, resampled_file, interpolation )
+    Registration.resample( input_file, target_file, resampled_file, interpolation )
 
     # 2. STEP: split the resampled volume
-    #Registration.splitDiffusion( resampled_file, splitted_dir )
+    Registration.splitDiffusion( resampled_file, splitted_dir )
     splitted_files = Utility.natsort( glob.glob( os.path.join( splitted_dir, '*' ) ) )
 
     # 3. STEP: register the first resampled and splitted scan
-    #Registration.register( splitted_files[0], target_file, registered_dir )
+    Registration.register( splitted_files[0], target_file, registered_dir )
 
     # 4. STEP: apply transform to all splitted files
     for s in splitted_files:
       warped_output_file = os.path.join( warped_dir, os.path.basename( s ) )
-      #Registration.warp( s, target_file, transform_file, warped_output_file )
+      Registration.warp( s, target_file, transform_file, warped_output_file )
 
     warped_files = Utility.natsort( glob.glob( os.path.join( warped_dir, '*' ) ) )
 

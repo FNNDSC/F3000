@@ -143,6 +143,7 @@ class Registration():
     sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
 
+
   @staticmethod
   def warp( input_file, target_file, transform_file, output_file ):
     '''
@@ -152,6 +153,6 @@ class Registration():
     # configure the ANTs environment
     cmd = 'export ANTSPATH=' + config.ANTS_BIN_DIR + ';'
     # run ants.sh
-    cmd += '$ANTSPATH/antsApplyTransforms -i ' + input_file + ' -r ' + target_file + ' -o ' + output_file + ' -t ' + transform_file + ' --interpolation NearestNeighbor'
+    cmd += '$ANTSPATH/antsApplyTransforms -i ' + input_file + ' -r ' + target_file + ' -o ' + output_file + ' -t ' + transform_file
     sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
