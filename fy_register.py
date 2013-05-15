@@ -40,6 +40,8 @@ class FyRegister():
     # .. and copy all working files
     input_file = os.path.join( tempdir, os.path.basename( options.input ) )
     input_file_name = os.path.splitext( os.path.basename( input_file ) )[0]
+    # also strip any .nii if the extension was .nii.gz
+    input_file_name = input_file_name.replace('.nii', '')
     target_file = os.path.join( tempdir, os.path.basename( options.target ) )
     resampled_file = os.path.join( tempdir, input_file_name + '_resampled.nii.gz' )
     splitted_dir = os.path.join( tempdir, 'splitted' )
