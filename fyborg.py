@@ -84,11 +84,27 @@ def clean1(workdir):
 def clean2(workdir):
   options = lambda:0
   options.input = os.path.join( workdir, 'OUT', 'diffusion_registered.nii.gz' )
-  options.output = os.path.join( workdir, 'OUT2' )
+  options.output = os.path.join( workdir, 'OUTWARPEDBVECS2' )
   if not os.path.exists(options.output):
     os.mkdir(options.output)
   options.diffusion = options.input
   options.bvals = os.path.join( workdir, 'diffusion.bval' )
+  options.mask = options.input
+  options.bvecs = os.path.join( workdir, 'diffusion.new.bvec' )
+  options.fa = os.path.join( options.output, 'fa.nii.gz' )
+  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
+
+  return options
+
+def clean3(workdir):
+  options = lambda:0
+  options.input = os.path.join( workdir, 'diffusion.nii.gz' )
+  options.output = os.path.join( workdir, 'OUTORIG' )
+  if not os.path.exists(options.output):
+    os.mkdir(options.output)
+  options.diffusion = options.input
+  options.bvals = os.path.join( workdir, 'diffusion.bval' )
+  options.mask = os.path.join( workdir, 'diffusion.nii.gz' )
   options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
   options.fa = os.path.join( options.output, 'fa.nii.gz' )
   options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
@@ -96,12 +112,38 @@ def clean2(workdir):
   return options
   
   
-# registration
-options = clean1( cleandir )
-FyRegister.run(options)
+  
+def roundtrip():  
+    
+  # registration
+  #options = clean1( cleandir )
+  #FyRegister.run(options)
+  
+  options = clean2(cleandir)
+  
+  # reconstruction
+  Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.mask, options.output )
+  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
 
-options = clean2(cleandir)
+def roundtrip_orig():  
+    
+  # registration
+  #options = clean1( cleandir )
+  #FyRegister.run(options)
+  
+  options = clean3(cleandir)
+  
+  # reconstruction
+  Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.mask, options.output )
+  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
 
-# reconstruction
-Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.output )
-Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
+
+def warpbvecs():
+  bvecs = os.path.join( cleandir, 'diffusion.bvec' )
+  bvecs_new = os.path.join( cleandir, 'diffusion.new2.bvec' )
+  transform = os.path.join( cleandir, 'OUT', 'diffusion_transform.txt' )
+  Registration.warp_bvecs(bvecs, transform,bvecs_new)
+
+#roundtrip()
+
+warpbvecs()

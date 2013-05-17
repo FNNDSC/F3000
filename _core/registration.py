@@ -8,6 +8,7 @@ import os, sys, subprocess, multiprocessing, time
 # third-party imports
 import dipy.align.aniso2iso as resampler
 import nibabel
+import numpy
 
 # fyborg imports
 import config
@@ -73,7 +74,7 @@ class Registration():
     # check if we have a .nii.gz file
     if diffusion_image_extension == '.gz':
       diffusion_image_extension = '.nii.gz'
-      diffusion_image_name = os.path.splitext(diffusion_image_name)[0]
+      diffusion_image_name = os.path.splitext( diffusion_image_name )[0]
 
     # split 4d diffusion image
     splitted_images = nibabel.four_to_three( diffusion_image )
@@ -82,7 +83,7 @@ class Registration():
 
     # save each of the splitted_images
     for number, image in enumerate( splitted_images ):
-      
+
       component_output_path = os.path.join( output_directory, diffusion_image_name + str( number ) + diffusion_image_extension )
       print component_output_path
       nibabel.save( image, component_output_path )
@@ -131,8 +132,8 @@ class Registration():
     The final output file is deformed.nii.gz in the output directory.
     '''
 
-    #output_prefix = os.path.join( output_directory, os.path.splitext( os.path.basename( input_file ) )[0] )
-    output_prefix = os.path.normpath(output_directory) + os.sep
+    # output_prefix = os.path.join( output_directory, os.path.splitext( os.path.basename( input_file ) )[0] )
+    output_prefix = os.path.normpath( output_directory ) + os.sep
 
     # configure the ANTs environment
     cmd = 'export ANTSPATH=' + config.ANTS_BIN_DIR + ';'
@@ -149,10 +150,70 @@ class Registration():
     '''
     Warp an image using an existing transform.
     '''
-    
+
     # configure the ANTs environment
     cmd = 'export ANTSPATH=' + config.ANTS_BIN_DIR + ';'
     # run ants.sh
     cmd += '$ANTSPATH/antsApplyTransforms -i ' + input_file + ' -r ' + target_file + ' -o ' + output_file + ' -t ' + transform_file
     sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
+
+  @staticmethod
+  def warp_bvecs( bvecs_file, transform_file, output_file ):
+    '''
+    Warp a list of b-vectors using an ITK transform.
+    '''
+
+    # read the transform
+    transform = None
+    with open( transform_file, 'r' ) as f:
+
+      keyword = 'Parameters:'
+
+      for line in f:
+        if line[:len( keyword )] == keyword:
+          values = line[len( keyword ):].split( ' ' )
+
+          # filter empty spaces and line breaks
+          values = [float( e ) for e in values if ( e != '' and e != '\n' )]
+          transform = numpy.reshape( values[0:9], ( 3, 3 ), order='F' )
+
+    # this will be filled with transformed bvecs
+    output = ''
+
+    # read the bvecs_file
+    with open( bvecs_file, 'r' ) as f:
+      lines = f.readlines()
+
+    # split the lines
+    splitted_lines = [l.split( ' ' ) for l in lines]
+    
+    # convert all values to float
+    splitted_lines = [[float(e) for e in l if e != '\n'] for l in splitted_lines]
+    print 's:',splitted_lines
+    transformed_lines = list(splitted_lines)
+    
+    # multiply each vector with the transformation matrix
+    for i in xrange(len(splitted_lines[0])):
+      
+      # multiply the vector
+      vector = [splitted_lines[0][i], splitted_lines[1][i], splitted_lines[2][i]]
+      # multiply it
+      result = numpy.dot(vector, transform)
+    
+      transformed_lines[0][i] = result[0]
+      transformed_lines[1][i] = result[1]
+      transformed_lines[2][i] = result[2]
+        
+    print 't:', transformed_lines
+        
+    for t in transformed_lines:
+
+      output += ' '.join([str(e) for e in t]) + '\n'
+      
+    # replace 0.0 again with a plain 0 and also get rid of last line break
+    output = output.replace('0.0 ', '0 ')[:-1]
+          
+    # save the output
+    with open( output_file, 'w' ) as f:
+      f.write( output )

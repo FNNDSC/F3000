@@ -24,7 +24,7 @@ class Reconstruction():
   '''
 
   @staticmethod
-  def reconstruct( diffusion_file, bval_file, bvec_file, output_directory ):
+  def reconstruct( diffusion_file, bval_file, bvec_file, mask_file, output_directory ):
     '''
     '''
     # load the input image
@@ -35,12 +35,14 @@ class Reconstruction():
 
     # create a simple mask
     mask = data[..., 0] > 50
-
+    #mask_image = nibabel.load( mask_file ).get_data()
+    #mask = mask_image[...] > 0
+ 
     # load the bval and bvec files
     b_values, b_vectors = dipy.io.read_bvals_bvecs( bval_file, bvec_file )
 
     # create a gradient table
-    gradient_table = gradienter.gradient_table( b_values, b_vectors )
+    gradient_table = gradienter.gradient_table_from_bvals_bvecs( b_values, b_vectors, 0, 10 )
 
     # instantiate tensor model
     tensor_model = reconstructer.TensorModel( gradient_table )
@@ -94,18 +96,18 @@ class Reconstruction():
 
     # perform tracking
     print 'start tracking'
-    tracking_results = tracker.EuDX( fa_map, peak_indices, seeds=100000, odf_vertices=sphere.vertices, a_low=0.2 )
+    tracking_results = tracker.EuDX( fa_map, peak_indices, seeds=1000000, odf_vertices=sphere.vertices, a_low=0.2 )
     streamlines = [streamline for streamline in tracking_results]
     print 'end tracking'
 
     # save as .TRK file
     trk_header = nibabel.trackvis.empty_header()
-    #trk_header['voxel_size'] = fa_image.get_header().get_zooms()[:3]
-    #trk_header['voxel_order'] = 'LPS'
+    # trk_header['voxel_size'] = fa_image.get_header().get_zooms()[:3]
+    # trk_header['voxel_order'] = 'LPS'
     trk_header['dim'] = fa_map.shape
-    
+
     # adjust trackvis header according to affine from FA
-    nibabel.trackvis.aff_to_hdr(fa_image.get_affine(), trk_header, True, True)
+    nibabel.trackvis.aff_to_hdr( fa_image.get_affine(), trk_header, True, True )
 
     trk_tracks = ( ( sl, None, None ) for sl in streamlines )
 
