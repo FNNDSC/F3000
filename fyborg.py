@@ -144,6 +144,6 @@ def warpbvecs():
   transform = os.path.join( cleandir, 'OUT', 'diffusion_transform.txt' )
   Registration.warp_bvecs(bvecs, transform,bvecs_new)
 
-#roundtrip()
+roundtrip()
 
-warpbvecs()
+#warpbvecs()

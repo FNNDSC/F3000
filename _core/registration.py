@@ -176,7 +176,12 @@ class Registration():
 
           # filter empty spaces and line breaks
           values = [float( e ) for e in values if ( e != '' and e != '\n' )]
-          transform = numpy.reshape( values[0:9], ( 3, 3 ), order='F' )
+          transform = numpy.reshape( values, ( 3, 4 ), order='F' )
+
+    transform = numpy.vstack((transform, [0,0,0,1]))
+
+    print transform
+    #return
 
     # this will be filled with transformed bvecs
     output = ''
@@ -197,9 +202,10 @@ class Registration():
     for i in xrange(len(splitted_lines[0])):
       
       # multiply the vector
-      vector = [splitted_lines[0][i], splitted_lines[1][i], splitted_lines[2][i]]
+      vector = [splitted_lines[0][i], splitted_lines[1][i], splitted_lines[2][i], 1.0]
       # multiply it
       result = numpy.dot(vector, transform)
+      #print result
     
       transformed_lines[0][i] = result[0]
       transformed_lines[1][i] = result[1]
@@ -213,6 +219,7 @@ class Registration():
       
     # replace 0.0 again with a plain 0 and also get rid of last line break
     output = output.replace('0.0 ', '0 ')[:-1]
+          
           
     # save the output
     with open( output_file, 'w' ) as f:
