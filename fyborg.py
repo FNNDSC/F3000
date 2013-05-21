@@ -90,7 +90,7 @@ def clean2(workdir):
   options.diffusion = options.input
   options.bvals = os.path.join( workdir, 'diffusion.bval' )
   options.mask = options.input
-  options.bvecs = os.path.join( workdir, 'diffusion.new.bvec' )
+  options.bvecs = os.path.join( workdir, 'diffusion.new5.bvec' )
   options.fa = os.path.join( options.output, 'fa.nii.gz' )
   options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
 
@@ -123,7 +123,7 @@ def roundtrip():
   
   # reconstruction
   Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.mask, options.output )
-  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
+  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks3.trk' ) )
 
 def roundtrip_orig():  
     
@@ -140,10 +140,11 @@ def roundtrip_orig():
 
 def warpbvecs():
   bvecs = os.path.join( cleandir, 'diffusion.bvec' )
-  bvecs_new = os.path.join( cleandir, 'diffusion.new2.bvec' )
+  bvecs_new = os.path.join( cleandir, 'diffusion.new5.bvec' )
   transform = os.path.join( cleandir, 'OUT', 'diffusion_transform.txt' )
   Registration.warp_bvecs(bvecs, transform,bvecs_new)
 
-roundtrip()
+#roundtrip()
 
 #warpbvecs()
+print Utility.readITKtransform(os.path.join( cleandir, 'OUT', 'diffusion_transform.txt' ))

@@ -165,23 +165,7 @@ class Registration():
     '''
 
     # read the transform
-    transform = None
-    with open( transform_file, 'r' ) as f:
-
-      keyword = 'Parameters:'
-
-      for line in f:
-        if line[:len( keyword )] == keyword:
-          values = line[len( keyword ):].split( ' ' )
-
-          # filter empty spaces and line breaks
-          values = [float( e ) for e in values if ( e != '' and e != '\n' )]
-          transform = numpy.reshape( values, ( 3, 4 ), order='F' )
-
-    transform = numpy.vstack((transform, [0,0,0,1]))
-
-    print transform
-    #return
+    transform = Utility.readITKtransform( transform_file )
 
     # this will be filled with transformed bvecs
     output = ''
@@ -192,35 +176,50 @@ class Registration():
 
     # split the lines
     splitted_lines = [l.split( ' ' ) for l in lines]
-    
+
     # convert all values to float
-    splitted_lines = [[float(e) for e in l if e != '\n'] for l in splitted_lines]
-    print 's:',splitted_lines
-    transformed_lines = list(splitted_lines)
+    splitted_lines = [[float( e ) for e in l if e != '\n'] for l in splitted_lines]
+    #print 's:', splitted_lines
+    transformed_lines = list( splitted_lines )
     
+    print transform
+
     # multiply each vector with the transformation matrix
-    for i in xrange(len(splitted_lines[0])):
-      
+    for i in xrange( len( splitted_lines[0] ) ):
+
+      if (splitted_lines[0][i] == 0 and splitted_lines[1][i] == 0 and splitted_lines[2][i] == 0):
+        # b zero values
+        transformed_lines[0][i] = 0
+        transformed_lines[1][i] = 0
+        transformed_lines[2][i] = 0
+        continue
+
       # multiply the vector
-      vector = [splitted_lines[0][i], splitted_lines[1][i], splitted_lines[2][i], 1.0]
+#      vector = numpy.ones( 4 )
+      #vector = numpy.reshape( vector, ( 4, 1 ) )
+#      vector[0][0] = splitted_lines[0][i]
+#      vector[1][0] = splitted_lines[1][i]
+#      vector[2][0] = splitted_lines[2][i]
+       
+      vector = numpy.array([splitted_lines[0][i], splitted_lines[1][i], splitted_lines[2][i], 1.0])
+      print vector
       # multiply it
-      result = numpy.dot(vector, transform)
-      #print result
-    
+      result = numpy.dot( transform, vector )
+      print result
+
       transformed_lines[0][i] = result[0]
       transformed_lines[1][i] = result[1]
       transformed_lines[2][i] = result[2]
-        
+
     print 't:', transformed_lines
-        
+
     for t in transformed_lines:
 
-      output += ' '.join([str(e) for e in t]) + '\n'
-      
+      output += ' '.join( [str( e ) for e in t] ) + '\n'
+
     # replace 0.0 again with a plain 0 and also get rid of last line break
-    output = output.replace('0.0 ', '0 ')[:-1]
-          
-          
+    output = output.replace( '0.0 ', '0 ' )[:-1]
+
     # save the output
     with open( output_file, 'w' ) as f:
       f.write( output )
