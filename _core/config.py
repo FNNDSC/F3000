@@ -2,4 +2,6 @@
 # FYBORG3000
 #
 
-ANTS_BIN_DIR = '/chb/arch/Linux64/packages/ANTs/current/bin/'
+FLIRT_BIN_PATH = 'fsl5.0-flirt'
+FLIRT_ARGUMENTS = '-usesqform -nosearch -dof 6 -cost mutualinfo'
+TRACK_TRANSFORM_BIN_PATH = 'track_transform'
