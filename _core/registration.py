@@ -55,46 +55,58 @@ class Registration():
 
 
   @staticmethod
-  def register( input_file, target_file, matrix_file ):
+  def register( diffusion_file, brain_file, matrix_file, arguments='' ):
     '''
-    Register the input image to match the target image using FLIRT.
+    Register the diffusion image to match the target brain image using the config.REGISTRATION_COMMAND.
     
-    input_file
-      the input file path
-    target_file
-      the target file path
+    diffusion_file
+      the input diffusion file path
+    brain_file
+      the target brain file path
     matrix_file
       the output registration matrix
+    arguments
+      any additional arguments
 
     '''
 
-    # build the FLIRT command
-    cmd = config.FLIRT_BIN_PATH + ' -in ' + input_file + ' -ref ' + target_file + ' -omat ' + matrix_file + ' ' + FLIRT_ARGUMENTS + ';'
+    # build the registration command
+    cmd = config.REGISTRATION_COMMAND
+    cmd = cmd.replace('%diffusion%', diffusion_file)
+    cmd = cmd.replace('%brain%', brain_file)
+    cmd = cmd.replace('%matrix%', matrix_file)
 
     sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
 
 
-  def warp_fibers(fibers_file, diffusion_file, brain_file, matrix_file, output_file):
+  @staticmethod
+  def warp_fibers( fibers_file, diffusion_file, brain_file, matrix_file, warped_fibers_file, arguments='' ):
     '''
-    Warp (transform) a TrackVis file using a FLIRT registration matrix.
+    Warp (transform) fibers using the config.TRACK_TRANSFORM_COMMAND.
     
     fibers_file
-      the .trk-file to warp
+      the file to warp
     diffusion_file
       the original diffusion volume
     brain_file
       the original structural scan (target space)
     matrix_file
       the FLIRT registration matrix
-    output_file
-      the output .trk-file
+    warped_fibers_file
+      the output file
+    arguments
+      any additional arguments
     
     '''
-    
-    # build the track_transform command
-    cmd = config.TRACK_TRANSFORM_BIN_PATH + ' ' + fibers_file + ' ' + output_file + ' -src ' + diffusion_file + ' -ref ' + brain_file + ' -reg ' + matrix_file + ';'
+    # build the transform command
+    cmd = config.TRACK_TRANSFORM_COMMAND
+    cmd = cmd.replace('%fibers%', fibers_file)
+    cmd = cmd.replace('%diffusion%', diffusion_file)
+    cmd = cmd.replace('%brain%', brain_file)
+    cmd = cmd.replace('%matrix%', matrix_file)
+    cmd = cmd.replace('%warped_fibers%', warped_fibers_file)
 
     sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
-    
+

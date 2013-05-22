@@ -24,7 +24,7 @@ class Reconstruction():
   '''
 
   @staticmethod
-  def reconstruct( diffusion_file, bval_file, bvec_file, mask_file, output_directory ):
+  def reconstruct( diffusion_file, bvals_file, bvecs_file, mask_file, fa_file, adc_file, evecs_file ):
     '''
     '''
     # load the input image
@@ -39,7 +39,7 @@ class Reconstruction():
     #mask = mask_image[...] > 0
  
     # load the bval and bvec files
-    b_values, b_vectors = dipy.io.read_bvals_bvecs( bval_file, bvec_file )
+    b_values, b_vectors = dipy.io.read_bvals_bvecs( bvals_file, bvecs_file )
 
     # create a gradient table
     gradient_table = gradienter.gradient_table_from_bvals_bvecs( b_values, b_vectors, 0, 10 )
@@ -69,12 +69,12 @@ class Reconstruction():
     evecs_map = tensor_fitting.evecs
 
     # store the maps
-    nibabel.save( nibabel.Nifti1Image( fa_map, input_image.get_affine() ), os.path.join( output_directory, 'fa.nii.gz' ) )
-    nibabel.save( nibabel.Nifti1Image( adc_map, input_image.get_affine() ), os.path.join( output_directory, 'adc.nii.gz' ) )
-    nibabel.save( nibabel.Nifti1Image( evecs_map, input_image.get_affine() ), os.path.join( output_directory, 'evecs.nii.gz' ) )
+    nibabel.save( nibabel.Nifti1Image( fa_map, input_image.get_affine() ), fa_file )
+    nibabel.save( nibabel.Nifti1Image( adc_map, input_image.get_affine() ), adc_file )
+    nibabel.save( nibabel.Nifti1Image( evecs_map, input_image.get_affine() ), evecs_file )
 
   @staticmethod
-  def streamlines( fa_file, evecs_file, output_file ):
+  def streamlines( fa_file, evecs_file, fibers_file ):
     '''
     '''
 
@@ -111,6 +111,6 @@ class Reconstruction():
 
     trk_tracks = ( ( sl, None, None ) for sl in streamlines )
 
-    nibabel.trackvis.write( output_file, trk_tracks, trk_header, points_space='voxel' )
+    nibabel.trackvis.write( fibers_file, trk_tracks, trk_header, points_space='voxel' )
 
 

@@ -10,140 +10,40 @@ import os
 # fyborg imports
 from _core import *
 from fy_register import FyRegister
+from fy_reconstruct import FyReconstruct
+from fy_warptracks import FyWarpTracks
 
-workdir = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/working'
+workdir = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/new'
+outputdir = os.path.join( workdir, 'out' )
 
-workdir2 = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/working2'
-cleandir = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/clean'
-
-
-def stanford( workdir ):
-
-  options = lambda:0
-  options.input = os.path.join( workdir, 'HARDI150.nii.gz' )
-  options.output = os.path.join( workdir, 'STANFORD' )
-  options.diffusion = os.path.join( workdir, 'HARDI150.nii.gz' )
-  options.bvals = os.path.join( workdir, 'HARDI150.bval' )
-  options.bvecs = os.path.join( workdir, 'HARDI150.bvec' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-
-def testdata( workdir ):
-
-  options = lambda:0
-  options.input = os.path.join( workdir, 'diffusion.nii' )
-  options.output = os.path.join( workdir, 'WORKINGVERSION' )
-  options.diffusion = os.path.join( workdir, 'diffusion.nii' )
-  options.bvals = os.path.join( workdir, 'diffusion.mghdti.bvals' )
-  options.bvecs = os.path.join( workdir, 'diffusion.mghdti.bvecs' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-
-def testdata2( workdir ):
-
-  options = lambda:0
-  options.input = os.path.join( workdir, 'diffusion.nii.gz' )
-  options.output = os.path.join( workdir, 'WORKINGVERSIONNEW' )
-  options.diffusion = os.path.join( workdir, 'diffusion.nii.gz' )
-  options.bvals = os.path.join( workdir, 'diffusion.bval' )
-  options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-
-def testdata3( workdir ):
-
-  options = lambda:0
-  options.input = os.path.join( workdir, 'F3000', 'diffusion_warped.nii.gz' )
-  options.output = os.path.join( workdir, 'WORKINGVERSIONREG' )
-  options.diffusion = os.path.join( workdir, 'F3000', 'diffusion_warped.nii.gz' )
-  options.bvals = os.path.join( workdir, 'diffusion.bval' )
-  options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-
-def clean1(workdir):
-  options = lambda:0
-  options.input = os.path.join( workdir, 'diffusion.nii.gz' )
-  options.target = os.path.join( workdir, 'brain.nii' )
-  options.output = os.path.join( workdir, 'OUT' )
-  options.smooth = False
-  options.tempdir = Utility.setupEnvironment()
-  
-  print options.tempdir
-  
-  return options
-
-def clean2(workdir):
-  options = lambda:0
-  options.input = os.path.join( workdir, 'OUT', 'diffusion_registered.nii.gz' )
-  options.output = os.path.join( workdir, 'OUTWARPEDBVECS2' )
-  if not os.path.exists(options.output):
-    os.mkdir(options.output)
-  options.diffusion = options.input
-  options.bvals = os.path.join( workdir, 'diffusion.bval' )
-  options.mask = options.input
-  options.bvecs = os.path.join( workdir, 'diffusion.new.bvec' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-
-def clean3(workdir):
-  options = lambda:0
-  options.input = os.path.join( workdir, 'diffusion.nii.gz' )
-  options.output = os.path.join( workdir, 'OUTORIG' )
-  if not os.path.exists(options.output):
-    os.mkdir(options.output)
-  options.diffusion = options.input
-  options.bvals = os.path.join( workdir, 'diffusion.bval' )
-  options.mask = os.path.join( workdir, 'diffusion.nii.gz' )
-  options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
-  options.fa = os.path.join( options.output, 'fa.nii.gz' )
-  options.evecs = os.path.join( options.output, 'evecs.nii.gz' )
-
-  return options
-  
-  
-  
-def roundtrip():  
-    
-  # registration
-  #options = clean1( cleandir )
-  #FyRegister.run(options)
-  
-  options = clean2(cleandir)
-  
-  # reconstruction
-  Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.mask, options.output )
-  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
-
-def roundtrip_orig():  
-    
-  # registration
-  #options = clean1( cleandir )
-  #FyRegister.run(options)
-  
-  options = clean3(cleandir)
-  
-  # reconstruction
-  Reconstruction.reconstruct( options.diffusion, options.bvals, options.bvecs, options.mask, options.output )
-  Reconstruction.streamlines( options.fa, options.evecs, os.path.join( options.output, 'tracks.trk' ) )
+if not os.path.exists( outputdir ):
+  os.mkdir( outputdir )
 
 
-def warpbvecs():
-  bvecs = os.path.join( cleandir, 'diffusion.bvec' )
-  bvecs_new = os.path.join( cleandir, 'diffusion.new2.bvec' )
-  transform = os.path.join( cleandir, 'OUT', 'diffusion_transform.txt' )
-  Registration.warp_bvecs(bvecs, transform,bvecs_new)
+options = lambda:0
+options.tempdir = Utility.setupEnvironment()
 
-roundtrip()
+# inputs
+options.diffusion = os.path.join( workdir, 'diffusion.nii.gz' )
+options.bvals = os.path.join( workdir, 'diffusion.bval' )
+options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
+options.brain = os.path.join( workdir, 'brain.nii.gz' )
+options.segmentation = os.path.join( workdir, 'aparc+aseg.nii.gz' )
 
-#warpbvecs()
+# outputs
+options.matrix = os.path.join( outputdir, 'diffusion-to-brain.mat' )
+options.fibers = os.path.join( outputdir, 'fibers.trk' )
+options.fa = os.path.join( outputdir, 'fa.nii.gz' )
+options.adc = os.path.join( outputdir, 'adc.nii.gz' )
+options.evecs = os.path.join( outputdir, 'evecs.nii.gz' )
+options.warped_fibers = os.path.join( outputdir, 'fibers-to-brain.trk' )
+
+# flags
+options.smooth = False
+
+
+FyRegister.run( options )
+FyReconstruct.run( options )
+FyWarpTracks.run( options )
+
+

@@ -5,6 +5,8 @@
 # standard imports
 import re, shutil, tempfile
 
+# fyborg imports
+import config
 
 class Utility():
   '''
@@ -43,7 +45,7 @@ class Utility():
     Returns
       The temporary folder.
     '''
-    return tempfile.mkdtemp( 'F3000', '', '/tmp' )
+    return tempfile.mkdtemp( 'F3000', '', config.TEMP_DIR )
 
   @staticmethod
   def teardownEnvironment( tempdir ):
