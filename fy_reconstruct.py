@@ -25,7 +25,7 @@ class FyReconstruct():
       options.diffusion
       options.bvals
       options.bvecs
-      options.segmentation
+      options.warped_segmentation
       options.fa
       options.adc
       options.evecs
@@ -39,8 +39,9 @@ class FyReconstruct():
       raise Exception( 'Could not find the bvals file!' )
     if not os.path.exists( options.bvecs ):
       raise Exception( 'Could not find the bvecs file!' )
-    if not os.path.exists( options.segmentation ):
-      raise Exception( 'Could not find the segmentation file!' )
+    if not os.path.exists( options.warped_segmentation ):
+      raise Exception( 'Could not find the warped_segmentation file!' )
+
 
     # use a temporary workspace
     tempdir = options.tempdir
@@ -48,12 +49,12 @@ class FyReconstruct():
     diffusion_file = os.path.join( tempdir, os.path.basename( options.diffusion ) )
     bvals_file = os.path.join( tempdir, os.path.basename( options.bvals ) )
     bvecs_file = os.path.join( tempdir, os.path.basename( options.bvecs ) )
-    segmentation_file = os.path.join( tempdir, os.path.basename( options.segmentation ) )
+    warped_segmentation_file = os.path.join( tempdir, os.path.basename( options.warped_segmentation ) )
 
     shutil.copyfile( options.diffusion, diffusion_file )
     shutil.copyfile( options.bvals, bvals_file )
     shutil.copyfile( options.bvecs, bvecs_file )
-    shutil.copyfile( options.segmentation, segmentation_file )
+    shutil.copyfile( options.warped_segmentation, warped_segmentation_file )
 
     fa_file = os.path.join( tempdir, os.path.basename( options.fa ) )
     adc_file = os.path.join( tempdir, os.path.basename( options.adc ) )
@@ -61,7 +62,7 @@ class FyReconstruct():
     fibers_file = os.path.join( tempdir, os.path.basename( options.fibers ) )
 
     # 1. STEP: reconstruct the data
-    Reconstruction.reconstruct( diffusion_file, bvals_file, bvecs_file, segmentation_file, fa_file, adc_file, evecs_file )
+    Reconstruction.reconstruct( diffusion_file, bvals_file, bvecs_file, warped_segmentation_file, fa_file, adc_file, evecs_file )
 
     # 2. STEP: generate streamlines
     Reconstruction.streamlines( fa_file, evecs_file, fibers_file )
@@ -82,7 +83,7 @@ if __name__ == "__main__":
   entrypoint.add_input( 'd', 'diffusion', 'The original diffusion volume.' )
   entrypoint.add_input( 'bvals', 'bvals', 'The bvals file.' )
   entrypoint.add_input( 'bvecs', 'bvecs', 'The bvecs file.' )
-  entrypoint.add_input( 's', 'segmentation', 'The segmentation to use as a mask (must be in diffusion space).' )
+  entrypoint.add_input( 'ws', 'warped_segmentation', 'The segmentation to use as a mask (must be in diffusion space).' )
   entrypoint.add_input( 'fa', 'fa', 'The fa output volume.' )
   entrypoint.add_input( 'adc', 'adc', 'The adc output volume.' )
   entrypoint.add_input( 'evecs', 'evecs', 'The evecs output volume.' )

@@ -24,8 +24,24 @@ class Reconstruction():
   '''
 
   @staticmethod
-  def reconstruct( diffusion_file, bvals_file, bvecs_file, mask_file, fa_file, adc_file, evecs_file ):
+  def reconstruct( diffusion_file, bvals_file, bvecs_file, warped_segmentation_file, fa_file, adc_file, evecs_file ):
     '''
+    Reconstruct a diffusion image by fitting a tensor model.
+    
+    diffusion_file
+      the diffusion image file path to reconstruct
+    bvals_file
+      the b-value file path
+    bvecs_file
+      the b-vector file path
+    warped_segmentation_file
+      the segmentation/mask file path
+    fa_file
+      the fa map output file path
+    adc_file
+      the adc map output file path
+    evecs_file
+      the evecs map output file path
     '''
     # load the input image
     input_image = nibabel.load( diffusion_file )
@@ -34,10 +50,12 @@ class Reconstruction():
     data = input_image.get_data()
 
     # create a simple mask
-    mask = data[..., 0] > 50
-    #mask_image = nibabel.load( mask_file ).get_data()
-    #mask = mask_image[...] > 0
- 
+    #mask = data[..., 0] > 50
+    
+    # create a mask from the segmentation file 
+    mask_image = nibabel.load( warped_segmentation_file ).get_data()
+    mask = mask_image[...] > 0
+
     # load the bval and bvec files
     b_values, b_vectors = dipy.io.read_bvals_bvecs( bvals_file, bvecs_file )
 
@@ -73,9 +91,18 @@ class Reconstruction():
     nibabel.save( nibabel.Nifti1Image( adc_map, input_image.get_affine() ), adc_file )
     nibabel.save( nibabel.Nifti1Image( evecs_map, input_image.get_affine() ), evecs_file )
 
+
   @staticmethod
   def streamlines( fa_file, evecs_file, fibers_file ):
     '''
+    Generate streamlines from FA and EVECS maps and store a TrackVis file.
+    
+    fa_file
+      the fa map file path
+    evecs_file
+      the evecs map file path
+    fibers_file
+      the TrackVis output file path
     '''
 
     # load the inputs

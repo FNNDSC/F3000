@@ -21,6 +21,8 @@ if not os.path.exists( outputdir ):
 
 
 options = lambda:0
+
+
 options.tempdir = Utility.setupEnvironment()
 
 # inputs
@@ -31,7 +33,10 @@ options.brain = os.path.join( workdir, 'brain.nii.gz' )
 options.segmentation = os.path.join( workdir, 'aparc+aseg.nii.gz' )
 
 # outputs
-options.matrix = os.path.join( outputdir, 'diffusion-to-brain.mat' )
+options.warped_diffusion = os.path.join( outputdir, 'diffusion-to-brain.nii.gz' )
+options.matrix = os.path.join( outputdir, 'fibers-to-brain.mat' )
+options.inverse_matrix = os.path.join( outputdir, 'brain-to-fibers.mat' )
+options.warped_segmentation = os.path.join( outputdir, 'aparc+aseg-to-fibers.nii.gz' )
 options.fibers = os.path.join( outputdir, 'fibers.trk' )
 options.fa = os.path.join( outputdir, 'fa.nii.gz' )
 options.adc = os.path.join( outputdir, 'adc.nii.gz' )
@@ -50,4 +55,4 @@ FyWarpTracks.run( options )
 
 
 
-Utility.teardownEnvironment(options.tempdir)
+Utility.teardownEnvironment( options.tempdir )

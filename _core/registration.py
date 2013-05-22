@@ -20,6 +20,24 @@ class Registration():
   '''
 
   @staticmethod
+  def invert_matrix( matrix_file, inverse_matrix_file ):
+    '''
+    Load a FLIRT matrix file and store an inverted version.
+    
+    matrix_file
+      the original matrix file path
+    inverse_matrix_file
+      the inverted matrix output file path
+    '''
+
+    # load the matrix
+    matrix = numpy.matrix( numpy.loadtxt( matrix_file ) )
+
+    # store the inverse matrix
+    numpy.savetxt( inverse_matrix_file, matrix.I, fmt='%10.13f', delimiter='  ' )
+
+
+  @staticmethod
   def resample( input_file, target_file, output_file, interpolation=0 ):
     '''
     Resample the input image to match the target image.
@@ -55,7 +73,7 @@ class Registration():
 
 
   @staticmethod
-  def register( diffusion_file, brain_file, matrix_file, arguments='' ):
+  def register( diffusion_file, brain_file, matrix_file, warped_diffusion_file, arguments='' ):
     '''
     Register the diffusion image to match the target brain image using the config.REGISTRATION_COMMAND.
     
@@ -65,18 +83,46 @@ class Registration():
       the target brain file path
     matrix_file
       the output registration matrix
+    warped_diffusion_file
+      the warped diffusion output file path      
     arguments
       any additional arguments
-
     '''
 
     # build the registration command
     cmd = config.REGISTRATION_COMMAND
-    cmd = cmd.replace('%diffusion%', diffusion_file)
-    cmd = cmd.replace('%brain%', brain_file)
-    cmd = cmd.replace('%matrix%', matrix_file)
+    cmd = cmd.replace( '%diffusion%', diffusion_file )
+    cmd = cmd.replace( '%brain%', brain_file )
+    cmd = cmd.replace( '%matrix%', matrix_file )
+    cmd = cmd.replace( '%warped_diffusion%', warped_diffusion_file )
 
-    sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
+    sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
+    sp.communicate()
+
+
+  @staticmethod
+  def warp( segmentation_file, diffusion_file, inverse_matrix_file, warped_segmentation_file ):
+    '''
+    Warp a label map to diffusion space using the provided matrix.
+    
+    segmentation_file
+      the input segmentation file path
+    diffusion_file
+      the diffusion reference image
+    inverse_matrix_file
+      the .mat file to use as a transform
+    warped_segmentation_file
+      the warped output image
+    '''
+
+    # build the warp command
+    cmd = config.TRANSFORM_COMMAND
+    cmd = cmd.replace( '%segmentation%', segmentation_file )
+    cmd = cmd.replace( '%diffusion%', diffusion_file )
+    cmd = cmd.replace( '%inverse_matrix%', inverse_matrix_file )
+    cmd = cmd.replace( '%warped_segmentation%', warped_segmentation_file )
+    print cmd
+    sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
 
 
@@ -101,11 +147,11 @@ class Registration():
     '''
     # build the transform command
     cmd = config.TRACK_TRANSFORM_COMMAND
-    cmd = cmd.replace('%fibers%', fibers_file)
-    cmd = cmd.replace('%diffusion%', diffusion_file)
-    cmd = cmd.replace('%brain%', brain_file)
-    cmd = cmd.replace('%matrix%', matrix_file)
-    cmd = cmd.replace('%warped_fibers%', warped_fibers_file)
+    cmd = cmd.replace( '%fibers%', fibers_file )
+    cmd = cmd.replace( '%diffusion%', diffusion_file )
+    cmd = cmd.replace( '%brain%', brain_file )
+    cmd = cmd.replace( '%matrix%', matrix_file )
+    cmd = cmd.replace( '%warped_fibers%', warped_fibers_file )
 
     sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
