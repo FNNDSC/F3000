@@ -107,6 +107,6 @@ class Registration():
     cmd = cmd.replace('%matrix%', matrix_file)
     cmd = cmd.replace('%warped_fibers%', warped_fibers_file)
 
-    sp = subprocess.Popen( ["/bin/bash", "-i", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
+    sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
 

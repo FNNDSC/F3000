@@ -41,9 +41,13 @@ options.warped_fibers = os.path.join( outputdir, 'fibers-to-brain.trk' )
 # flags
 options.smooth = False
 
-
+#
+# Processing pipeline
+#
 FyRegister.run( options )
 FyReconstruct.run( options )
 FyWarpTracks.run( options )
 
 
+
+Utility.teardownEnvironment(options.tempdir)

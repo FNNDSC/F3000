@@ -26,4 +26,3 @@ REGISTRATION_COMMAND = 'fsl5.0-flirt -in %diffusion% -ref %brain% -omat %matrix%
 #  %warped_fibers%
 #    - the output TrackVis file
 TRACK_TRANSFORM_COMMAND = 'track_transform %fibers% %warped_fibers% -src %diffusion% -ref %brain% -reg %matrix%'
-

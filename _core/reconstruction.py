@@ -112,5 +112,3 @@ class Reconstruction():
     trk_tracks = ( ( sl, None, None ) for sl in streamlines )
 
     nibabel.trackvis.write( fibers_file, trk_tracks, trk_header, points_space='voxel' )
-
-

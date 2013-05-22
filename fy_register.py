@@ -61,6 +61,8 @@ class FyRegister():
 
     # 3. STEP: store the resampled data and the registration matrix in the output folder
     shutil.copyfile( matrix_file, options.matrix )
+    
+    print 'reg done'
 
 
 #
