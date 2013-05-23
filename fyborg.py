@@ -9,39 +9,39 @@ import os
 
 # fyborg imports
 from _core import *
+from fy_prep import FyPrep
 from fy_register import FyRegister
 from fy_reconstruct import FyReconstruct
 from fy_warptracks import FyWarpTracks
 
-workdir = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/new'
-outputdir = os.path.join( workdir, 'out' )
 
-if not os.path.exists( outputdir ):
-  os.mkdir( outputdir )
 
 
 options = lambda:0
 
-
-options.tempdir = Utility.setupEnvironment()
-
 # inputs
-options.diffusion = os.path.join( workdir, 'diffusion.nii.gz' )
-options.bvals = os.path.join( workdir, 'diffusion.bval' )
-options.bvecs = os.path.join( workdir, 'diffusion.bvec' )
-options.brain = os.path.join( workdir, 'brain.nii.gz' )
-options.segmentation = os.path.join( workdir, 'aparc+aseg.nii.gz' )
+options.freesurfer_directory = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/FREESURFER'
+options.diffusion_directory = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/DIFFUSION_HighRes_Short'
+options.output_directory = '/chb/users/daniel.haehn/TMP/FYBORG3000/4543113/latest'
 
 # outputs
-options.warped_diffusion = os.path.join( outputdir, 'diffusion-to-brain.nii.gz' )
-options.matrix = os.path.join( outputdir, 'fibers-to-brain.mat' )
-options.inverse_matrix = os.path.join( outputdir, 'brain-to-fibers.mat' )
-options.warped_segmentation = os.path.join( outputdir, 'aparc+aseg-to-fibers.nii.gz' )
-options.fibers = os.path.join( outputdir, 'fibers.trk' )
-options.fa = os.path.join( outputdir, 'fa.nii.gz' )
-options.adc = os.path.join( outputdir, 'adc.nii.gz' )
-options.evecs = os.path.join( outputdir, 'evecs.nii.gz' )
-options.warped_fibers = os.path.join( outputdir, 'fibers-to-brain.trk' )
+options.diffusion = os.path.join( options.output_directory, 'diffusion.nii.gz' )
+options.qc_report = os.path.join( options.output_directory, 'diffusion_QCReport.txt' )
+options.bvals = os.path.join( options.output_directory, 'diffusion.bval' )
+options.bvecs = os.path.join( options.output_directory, 'diffusion.bvec' )
+options.brain = os.path.join( options.output_directory, 'brain.nii.gz' )
+options.segmentation = os.path.join( options.output_directory, 'aparc+aseg.nii.gz' )
+options.lh_smoothwm = os.path.join( options.output_directory, 'lh.smoothwm' )
+options.rh_smoothwm = os.path.join( options.output_directory, 'rh.smoothwm' )
+options.warped_diffusion = os.path.join( options.output_directory, 'diffusion-to-brain.nii.gz' )
+options.matrix = os.path.join( options.output_directory, 'fibers-to-brain.mat' )
+options.inverse_matrix = os.path.join( options.output_directory, 'brain-to-fibers.mat' )
+options.warped_segmentation = os.path.join( options.output_directory, 'aparc+aseg-to-fibers.nii.gz' )
+options.fibers = os.path.join( options.output_directory, 'fibers.trk' )
+options.fa = os.path.join( options.output_directory, 'fa.nii.gz' )
+options.adc = os.path.join( options.output_directory, 'adc.nii.gz' )
+options.evecs = os.path.join( options.output_directory, 'evecs.nii.gz' )
+options.warped_fibers = os.path.join( options.output_directory, 'fibers-to-brain.trk' )
 
 # flags
 options.smooth = False
@@ -49,10 +49,21 @@ options.smooth = False
 #
 # Processing pipeline
 #
+
+
+options.tempdir = Utility.setupEnvironment()
+
+if not os.path.exists( options.output_directory ):
+  os.mkdir( options.output_directory )
+
+
+Utility.parseFreesurferDir( options.freesurfer_directory, options.brain, options.segmentation, options.lh_smoothwm, options.rh_smoothwm )
+
+#FyPrep.run( options )
 FyRegister.run( options )
 FyReconstruct.run( options )
 FyWarpTracks.run( options )
 
-
+print options.tempdir
 
 Utility.teardownEnvironment( options.tempdir )

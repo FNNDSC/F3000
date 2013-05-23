@@ -58,7 +58,7 @@ class FyWarpTracks():
     Registration.warp_fibers( fibers_file, diffusion_file, brain_file, matrix_file, warped_fibers_file )
 
     # 3. STEP: store the warped TrackVis file in the output folder
-    shutil.copyfile( warped_fibers_file, os.path.join( options.warped_fibers ) )
+    shutil.copyfile( warped_fibers_file, options.warped_fibers )
 
 
 #

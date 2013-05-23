@@ -5,6 +5,36 @@
 # the temporary directory where all data gets migrated before any calculation
 TEMP_DIR = '/tmp'
 
+# the external mri_convert tool
+#  %source%
+#    - the file to convert
+#  %target%
+#    - the output file
+MRICONVERT_COMMAND = '. chb-fs stable; mri_convert %source% %target%'
+
+# the external diffusion2nrrd tool
+#  %diffusion_directory%
+#    - the DICOM diffusion directory
+#  %diffusion_nrrd%
+#    - the converted nrrd output file
+DIFFUSION2NRRD_COMMAND = 'DWIConvert --inputDicomDirectory %diffusion_directory% --outputVolume %diffusion_nrrd%'
+
+# the external dti preparation tool
+#  %diffusion_nrrd%
+#    - the diffusion nrrd file
+DTIPREP_COMMAND = 'DTIPrep -w %diffusion_nrrd% -c -d -p default.xml'
+
+# the external nrrd2nii tool
+#  %diffusion_nrrd%
+#    - the diffusion nrrd file
+#  %diffusion%
+#    - the diffusion nii output file
+#  %bvals%
+#    - the bvals output file
+#  %bvecs%
+#    - the bvecs output file
+NRRD2NII_COMMAND = 'DWIConvert --inputVolume %diffusion_nrrd% --outputVolume %diffusion% --outputBValues %bvals% --outputBVectors %bvecs% --conversionMode NrrdToFSL'
+
 # the external registration tool
 #  %diffusion% 
 #    - the diffusion file to register

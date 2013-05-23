@@ -68,10 +68,10 @@ class FyReconstruct():
     Reconstruction.streamlines( fa_file, evecs_file, fibers_file )
 
     # 3. STEP: store the outputs
-    shutil.copyfile( fa_file, os.path.join( options.fa ) )
-    shutil.copyfile( adc_file, os.path.join( options.adc ) )
-    shutil.copyfile( evecs_file, os.path.join( options.evecs ) )
-    shutil.copyfile( fibers_file, os.path.join( options.fibers ) )
+    shutil.copyfile( fa_file, options.fa )
+    shutil.copyfile( adc_file, options.adc )
+    shutil.copyfile( evecs_file, options.evecs )
+    shutil.copyfile( fibers_file, options.fibers )
 
 
 #
