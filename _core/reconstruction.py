@@ -132,6 +132,7 @@ class Reconstruction():
     # trk_header['voxel_size'] = fa_image.get_header().get_zooms()[:3]
     # trk_header['voxel_order'] = 'LPS'
     trk_header['dim'] = fa_map.shape
+    trk_header['n_count'] = len(streamlines)
 
     # adjust trackvis header according to affine from FA
     nibabel.trackvis.aff_to_hdr( fa_image.get_affine(), trk_header, True, True )

@@ -12,6 +12,16 @@ TEMP_DIR = '/tmp'
 #    - the output file
 MRICONVERT_COMMAND = '. chb-fs stable; mri_convert %source% %target%'
 
+# the external mris_transform tool
+#  %surface%
+#    - the surface file to transform 
+#  %matrix%
+#    - the transformation matrix file
+#  %output_surface%
+#    - the output surface file
+#
+MRISTRANSFORM_COMMAND = '. chb-fs stable; mris_transform %surface% %matrix% %output_surface%'
+
 # the external diffusion2nrrd tool
 #  %diffusion_directory%
 #    - the DICOM diffusion directory

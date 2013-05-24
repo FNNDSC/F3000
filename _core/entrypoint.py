@@ -34,14 +34,20 @@ class Entrypoint( object ):
   def add_flag( self, short, long, helpText, defaultSetting=False ):
     '''
     '''
-    
+
     self.__entrypoint.add_argument( '-' + short, '--' + long, action='store_true', dest=long, default=defaultSetting, help=helpText )
 
   def add_input( self, short, long, helpText, defaultValue=None ):
     '''
     '''
-    
+
     self.__entrypoint.add_argument( '-' + short, '--' + long, action='store', dest=long, default=defaultValue, help=helpText )
+
+  def add_input_list( self, short, long, helpText, defaultValue=None ):
+    '''
+    '''
+
+    self.__entrypoint.add_argument( '-' + short, '--' + long, nargs='+', action='store', dest=long, default=defaultValue, help=helpText )
 
   def parse( self, args ):
     '''
@@ -50,5 +56,5 @@ class Entrypoint( object ):
     if len( args ) == 1:
       self.__entrypoint.print_help()
       sys.exit( 1 )
-    
+
     return self.__entrypoint.parse_args()

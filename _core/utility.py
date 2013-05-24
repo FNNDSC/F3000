@@ -5,6 +5,10 @@
 # standard imports
 import os, re, shutil, subprocess, sys, tempfile
 
+# third-party imports
+import nibabel
+import numpy
+
 # fyborg imports
 import config
 
@@ -23,6 +27,14 @@ class Utility():
     for i in xrange( 0, len( l ), n ):
         yield l[i:i + n]
         
+  @staticmethod
+  def split_list( alist, wanted_parts=1 ):
+    '''
+    Split a list into wanted_parts.
+    '''
+    length = len( alist )
+    return [ alist[i * length // wanted_parts: ( i + 1 ) * length // wanted_parts]
+             for i in range( wanted_parts ) ]        
         
   @staticmethod
   def natsort( l ):
@@ -70,6 +82,46 @@ class Utility():
     # copy the others
     shutil.copyfile( lh_smoothwm_file_orig, lh_smoothwm_file )
     shutil.copyfile( rh_smoothwm_file_orig, rh_smoothwm_file )
+
+
+  @staticmethod
+  def copy_scalars( trkFile1, trkFile2, outputFile ):
+    '''
+    Copy scalars from trkFile1 to trkFile2
+    '''
+  
+    s = nibabel.trackvis.read( trkFile1 )
+    s2 = nibabel.trackvis.read( trkFile2 )
+    tracks = s[0]
+    tracks2 = s2[0]
+    origHeader = s[1]
+    origHeader2 = s2[1]
+    tracksHeader = numpy.copy( s[1] )
+    tracksHeader2 = numpy.copy( s2[1] )
+  
+    #if tracksHeader['n_count'] != tracksHeader2['n_count']:
+    #  c.error( 'The track counts do not match!' )
+    #  sys.exit( 2 )
+  
+    # now copy
+    tracksHeader2['n_scalars'] = tracksHeader['n_scalars']
+    tracksHeader2['scalar_name'] = tracksHeader['scalar_name']
+  
+    newTracks2 = []
+  
+    for tCounter, t in enumerate( tracks ):
+  
+      tCoordinates = t[0]
+      tScalars = t[1]
+  
+      # copy scalars over
+      #tracks2[tCounter][1] = numpy.copy( tScalars )
+      newTracks2.append( ( tracks2[tCounter][0], tScalars[:], tracks2[tCounter][2] ) )
+  
+    # write trkFile2 with update scalars
+    nibabel.trackvis.write( outputFile, newTracks2, tracksHeader2 )
+  
+    print 'Copied Scalars!' 
 
 
   @staticmethod

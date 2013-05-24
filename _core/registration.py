@@ -121,7 +121,7 @@ class Registration():
     cmd = cmd.replace( '%diffusion%', diffusion_file )
     cmd = cmd.replace( '%inverse_matrix%', inverse_matrix_file )
     cmd = cmd.replace( '%warped_segmentation%', warped_segmentation_file )
-    print cmd
+
     sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
 

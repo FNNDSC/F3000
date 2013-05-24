@@ -80,7 +80,7 @@ if __name__ == "__main__":
   # attach a temporary environment
   options.tempdir = Utility.setupEnvironment()
 
-  FyWarpTracks.run( options )
+  FyPrep.run( options )
 
   # clean up temporary environment
   Utility.teardownEnvironment( options.tempdir )
