@@ -30,19 +30,19 @@ class FySurfaceMapAction( FyMapAction ):
       self._rightVerticesRAS.extend( numpy.dot( qFormM.I, r ) )
 
     self._r_offset = len( self._leftMesh[0] ) + 1
-    
+
     self._leftVerticesRAS2 = []
     self._rightVerticesRAS2 = []
-    
+
     for l in self._leftVerticesRAS:
-      self._leftVerticesRAS2.append(l.tolist()[0][:-1])
+      self._leftVerticesRAS2.append( l.tolist()[0][:-1] )
 
     for r in self._rightVerticesRAS:
-      self._rightVerticesRAS2.append(r.tolist()[0][:-1])
-    
+      self._rightVerticesRAS2.append( r.tolist()[0][:-1] )
+
     # create KDTrees
-    self._leftTree = scipy.spatial.KDTree(self._leftVerticesRAS2)
-    self._rightTree = scipy.spatial.KDTree(self._rightVerticesRAS2)
+    self._leftTree = scipy.spatial.KDTree( self._leftVerticesRAS2 )
+    self._rightTree = scipy.spatial.KDTree( self._rightVerticesRAS2 )
 
   def scalarPerFiber( self, uniqueFiberId, coords, scalars ):
     '''
@@ -54,56 +54,31 @@ class FySurfaceMapAction( FyMapAction ):
     first = coords[0]
     last = coords[-1]
 
-    vertexIndices = []
+    # FIRST POINT
+    # check which surface vertex index is the closest to the first point
+    # and use the lh and rh meshes to look this up
+    left_distance_nn, first_left_index_nn = self._leftTree.query( first )
+    right_distance_nn, first_right_index_nn = self._rightTree.query( first )
 
-    for currentCoords in [first, last]:
+    if right_distance_nn < left_distance_nn:
+      # the right index is closer
+      self._startVertices[uniqueFiberId] = [[first[0], first[1], first[2]], first_right_index_nn + self._r_offset]
+    else:
+      # the left index is closer
+      self._startVertices[uniqueFiberId] = [[first[0], first[1], first[2]], first_left_index_nn]
 
-      minVertexIndexLeft = None
-      minDistanceLeft = float( 'inf' )
-      minVertexIndexRight = None
-      minDistanceRight = float( 'inf' )
+    # now for the LAST POINT
+    # check which surface vertex index is the closest to the last point
+    # and use the lh and rh meshes to look this up
+    left_distance_nn, last_left_index_nn = self._leftTree.query( last )
+    right_distance_nn, last_right_index_nn = self._rightTree.query( last )
 
-      # check which surface point is the closest
-      # .. for the left hemisphere
-      
-      print 'looking for closest point to ', currentCoords
-      
-      distance_nn, left_nn = self._leftTree.query(currentCoords)
-      #left_index = self._leftVerticesRAS.index(left_nn)
-      print 'KDTree found: vertex ', left_nn, ' : ', self._leftVerticesRAS2[left_nn], ' with distance ', distance_nn
-      
-      for index, l in enumerate( self._leftVerticesRAS2 ):
-        #l = l.tolist()
-        #distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
-        p1 = currentCoords
-        p2 = l
-        distance = math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2 + (p2[2] - p1[2]) ** 2)
-        #print currentCoords,l[0], distance
-        if distance < minDistanceLeft:
-          # .. grab its' vertex index
-          minVertexIndexLeft = index
-          minDistanceLeft = distance
-
-      print 'Bruteforce found: vertex ', minVertexIndexLeft, ' : ', self._leftVerticesRAS[minVertexIndexLeft], ' with distance ', minDistanceLeft
-      print '-------------'
-
-#      # .. and for the right hemisphere
-#      for index, l in enumerate( self._rightVerticesRAS ):
-#        l = l.tolist()
-#        distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
-#        if distance < minDistanceRight:
-#          # .. grab its' vertex index
-#          minVertexIndexRight = index + self._r_offset
-
-      # and store it (either left or right, whichever is closer)
-      if minDistanceRight < minDistanceLeft:
-        vertexIndices.append( minVertexIndexRight )
-      else:
-        vertexIndices.append( minVertexIndexLeft )
-
-    # now we have two vertex indicies, first the one of the start point, then the one of the end point
-    self._startVertices[uniqueFiberId] = [[first[0], first[1], first[2]], vertexIndices[0]]
-    self._endVertices[uniqueFiberId] = [[last[0], last[1], last[2]], vertexIndices[1]]
+    if right_distance_nn < left_distance_nn:
+      # the right index is closer
+      self._endVertices[uniqueFiberId] = [[last[0], last[1], last[2]], last_right_index_nn + self._r_offset]
+    else:
+      # the left index is closer
+      self._endVertices[uniqueFiberId] = [[last[0], last[1], last[2]], last_left_index_nn]
 
     return FyAction.NoScalar
 

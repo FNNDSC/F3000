@@ -33,10 +33,10 @@ options.bvals = os.path.join( options.output_directory, 'diffusion.bval' )
 options.bvecs = os.path.join( options.output_directory, 'diffusion.bvec' )
 options.brain = os.path.join( options.output_directory, 'brain.nii.gz' )
 options.segmentation = os.path.join( options.output_directory, 'aparc+aseg.nii.gz' )
-options.lh_smoothwm = os.path.join( options.output_directory, 'lh.dec3.smoothwm' )
-options.rh_smoothwm = os.path.join( options.output_directory, 'rh.dec3.smoothwm' )
-options.lh_smoothwm_nover2ras = os.path.join( options.output_directory, 'lh.dec3.smoothwm.nover2ras' )
-options.rh_smoothwm_nover2ras = os.path.join( options.output_directory, 'rh.dec3.smoothwm.nover2ras' )
+options.lh_smoothwm = os.path.join( options.output_directory, 'lh.smoothwm' )
+options.rh_smoothwm = os.path.join( options.output_directory, 'rh.smoothwm' )
+options.lh_smoothwm_nover2ras = os.path.join( options.output_directory, 'lh.smoothwm.nover2ras' )
+options.rh_smoothwm_nover2ras = os.path.join( options.output_directory, 'rh.smoothwm.nover2ras' )
 options.warped_diffusion = os.path.join( options.output_directory, 'diffusion-to-brain.nii.gz' )
 options.matrix = os.path.join( options.output_directory, 'fibers-to-brain.mat' )
 options.inverse_matrix = os.path.join( options.output_directory, 'brain-to-fibers.mat' )
@@ -85,10 +85,15 @@ if not os.path.exists( options.output_directory ):
 # FyMap.run( options )
 
 # map vertices
-options.fibers_to_map = options.warped_fibers
-FySurfaceMap.run(options)
+# options.fibers_to_map = options.warped_fibers
+# FySurfaceMap.run(options)
 
 # surface connectivity
-#SurfaceConnectivity.connect(options.fibers_mapped, 'smoothwm', options.lh_smoothwm, options.rh_smoothwm, options.connectivity_matrix )
+# SurfaceConnectivity.connect(options.fibers_mapped, 'smoothwm', options.lh_smoothwm, options.rh_smoothwm, options.connectivity_matrix )
+
+# threshold using label
+options.label = os.path.join( options.output_directory, 'lh.cortex.label' )
+options.fibers_thresholded = os.path.join( options.output_directory, 'fibers-thresholded2.trk' )
+Thresholding.threshold_by_label( options.fibers_mapped, 'smoothwm', options.label, options.fibers_thresholded )
 
 # Utility.teardownEnvironment( options.tempdir )

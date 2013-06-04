@@ -44,4 +44,3 @@ class SurfaceMapping():
 
     # start the mapping using the looper
     Looper.loop( fibers_file, output_fibers_file, actions )
-

@@ -21,7 +21,7 @@ class Looper():
   '''
   
   @staticmethod
-  def loop(fibers_file, fibers_output_file, actions, singleThread=True):
+  def loop(fibers_file, fibers_output_file, actions, singleThread=False):
   
     # load trk file
     s = nibabel.trackvis.read( fibers_file )
@@ -140,7 +140,7 @@ class Looper():
   
       # some debug stats
       #c.debug( 'Thread-' + str( threadNumber ) + ': Processing ' + str( tCounter + 1 ) + '/' + str( numberOfTracks ), showDebug )
-      #print 'Thread-' + str( threadNumber ) + ': Processing ' + str( tCounter + 1 ) + '/' + str( numberOfTracks )
+      print 'Thread-' + str( threadNumber ) + ': Processing ' + str( tCounter + 1 ) + '/' + str( numberOfTracks )
   
       # generate a unique ID for this track
       uniqueId = str( threadNumber ) + str( tCounter )
