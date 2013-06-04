@@ -1,7 +1,9 @@
 from fy_action import FyAction
 from fy_map_action import FyMapAction
+import math
 import numpy
 import nibabel
+import scipy.spatial
 
 class FySurfaceMapAction( FyMapAction ):
 
@@ -17,7 +19,7 @@ class FySurfaceMapAction( FyMapAction ):
 
     # transform the coords for the right and left hemisphere
     qForm = self._imageHeader.get_qform()
-    qFormM = numpy.matrix( qForm ) # as matrix
+    qFormM = numpy.matrix( qForm )  # as matrix
     # extend the vertex coordinates with an element
     leftVertices = numpy.column_stack( ( self._leftMesh[0], numpy.ones( len( self._leftMesh[0] ) ) ) )
     rightVertices = numpy.column_stack( ( self._rightMesh[0], numpy.ones( len( self._rightMesh[0] ) ) ) )
@@ -26,6 +28,21 @@ class FySurfaceMapAction( FyMapAction ):
       self._leftVerticesRAS.extend( numpy.dot( qFormM.I, l ) )
     for r in rightVertices:
       self._rightVerticesRAS.extend( numpy.dot( qFormM.I, r ) )
+
+    self._r_offset = len( self._leftMesh[0] ) + 1
+    
+    self._leftVerticesRAS2 = []
+    self._rightVerticesRAS2 = []
+    
+    for l in self._leftVerticesRAS:
+      self._leftVerticesRAS2.append(l.tolist()[0][:-1])
+
+    for r in self._rightVerticesRAS:
+      self._rightVerticesRAS2.append(r.tolist()[0][:-1])
+    
+    # create KDTrees
+    self._leftTree = scipy.spatial.KDTree(self._leftVerticesRAS2)
+    self._rightTree = scipy.spatial.KDTree(self._rightVerticesRAS2)
 
   def scalarPerFiber( self, uniqueFiberId, coords, scalars ):
     '''
@@ -48,20 +65,35 @@ class FySurfaceMapAction( FyMapAction ):
 
       # check which surface point is the closest
       # .. for the left hemisphere
-      for index, l in enumerate( self._leftVerticesRAS ):
-        l = l.tolist()
-        distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
+      
+      print 'looking for closest point to ', currentCoords
+      
+      distance_nn, left_nn = self._leftTree.query(currentCoords)
+      #left_index = self._leftVerticesRAS.index(left_nn)
+      print 'KDTree found: vertex ', left_nn, ' : ', self._leftVerticesRAS2[left_nn], ' with distance ', distance_nn
+      
+      for index, l in enumerate( self._leftVerticesRAS2 ):
+        #l = l.tolist()
+        #distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
+        p1 = currentCoords
+        p2 = l
+        distance = math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2 + (p2[2] - p1[2]) ** 2)
+        #print currentCoords,l[0], distance
         if distance < minDistanceLeft:
           # .. grab its' vertex index
           minVertexIndexLeft = index
+          minDistanceLeft = distance
 
-      # .. and for the right hemisphere
-      for index, l in enumerate( self._rightVerticesRAS ):
-        l = l.tolist()
-        distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
-        if distance < minDistanceRight:
-          # .. grab its' vertex index
-          minVertexIndexRight = index
+      print 'Bruteforce found: vertex ', minVertexIndexLeft, ' : ', self._leftVerticesRAS[minVertexIndexLeft], ' with distance ', minDistanceLeft
+      print '-------------'
+
+#      # .. and for the right hemisphere
+#      for index, l in enumerate( self._rightVerticesRAS ):
+#        l = l.tolist()
+#        distance = numpy.linalg.norm( currentCoords - [l[0][0], l[0][1], l[0][2]] )
+#        if distance < minDistanceRight:
+#          # .. grab its' vertex index
+#          minVertexIndexRight = index + self._r_offset
 
       # and store it (either left or right, whichever is closer)
       if minDistanceRight < minDistanceLeft:
@@ -90,4 +122,4 @@ class FySurfaceMapAction( FyMapAction ):
       # this is the end point, so attach the end vertex
       return int( endVertex[1] )
 
-    return -1 # else wise, return an empty scalar
+    return -1  # else wise, return an empty scalar

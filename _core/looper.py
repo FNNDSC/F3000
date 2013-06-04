@@ -21,7 +21,7 @@ class Looper():
   '''
   
   @staticmethod
-  def loop(fibers_file, fibers_output_file, actions, singleThread=False):
+  def loop(fibers_file, fibers_output_file, actions, singleThread=True):
   
     # load trk file
     s = nibabel.trackvis.read( fibers_file )
