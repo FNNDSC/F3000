@@ -17,6 +17,12 @@ class EntrypointArgParser( argparse.ArgumentParser ):
     self.print_help()
     sys.exit( 2 )
 
+  def print_help( self ):
+    '''
+    '''
+    print "FYBORG3000 (c) FNNDSC, BCH 2013"
+    super( EntrypointArgParser, self ).print_help()
+
 
 class Entrypoint( object ):
   '''
@@ -37,11 +43,11 @@ class Entrypoint( object ):
 
     self.__entrypoint.add_argument( '-' + short, '--' + long, action='store_true', dest=long, default=defaultSetting, help=helpText )
 
-  def add_input( self, short, long, helpText, defaultValue=None ):
+  def add_input( self, short, long, helpText, requiredValue=True, defaultValue=None ):
     '''
     '''
 
-    self.__entrypoint.add_argument( '-' + short, '--' + long, action='store', dest=long, default=defaultValue, help=helpText )
+    self.__entrypoint.add_argument( '-' + short, '--' + long, action='store', dest=long, default=defaultValue, help=helpText, required=requiredValue )
 
   def add_input_list( self, short, long, helpText, defaultValue=None ):
     '''

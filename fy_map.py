@@ -25,30 +25,36 @@ class FyMap():
     # validate inputs
     if not os.path.exists( input ):
       raise Exception( 'Could not find the input fibers file!' )
-    
+
     for v in volumes:
       if not os.path.exists( v ):
         raise Exception( 'Could not find the volume file ' + v + '!' )
-    
-    
+
+    if not os.path.exists( output ):
+      # create output directory
+      os.mkdir( output )
+
     # use a temporary workspace
     # .. and copy all working files
-    fibers_to_map_file = os.path.join( tempdir, os.path.basename( input ) )
-    fibers_mapped_file = os.path.join( tempdir, os.path.basename( output ) )
+    input_file = os.path.join( tempdir, os.path.basename( input ) )
+    input_file_name = Utility.get_file_name( input_file )
+    output_file = os.path.join( tempdir, input_file_name + '_mapped.trk' )
     volumes_to_map = []
-  
-    shutil.copy(input, fibers_to_map_file)
-    
-    for v in options.volumes_to_map:
-      v_file = os.path.join(tempdir, os.path.basename( v))
-      shutil.copy(v, v_file)
-      volumes_to_map.append(v_file)
-      
-    # 1. STEP: map all volumes
-    Mapping.map(fibers_to_map_file, volumes_to_map, fibers_mapped_file)
 
-    # 2. STEP: copy data to the proper output places
-    shutil.copyfile( fibers_mapped_file, output )
+    shutil.copy( input, input_file )
+
+    for v in volumes:
+      v_file = os.path.join( tempdir, os.path.basename( v ) )
+      shutil.copy( v, v_file )
+      volumes_to_map.append( v_file )
+
+    # 1. STEP: map all volumes
+    Mapping.map( input_file, volumes_to_map, output_file )
+
+    # 2. STEP: copy data to the output directory
+    shutil.copy( output_file, output )
+
+    return os.path.join( output, os.path.basename( output_file ) )
 
 
 #
@@ -58,15 +64,27 @@ if __name__ == "__main__":
   entrypoint = Entrypoint( description='Map scalar volumes to a TrackVis file.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
-  entrypoint.add_input_list( 'v', 'volumes_to_map', 'The scalar volumes to map as a list, f.e. -v adc.nii fa.nii e1.nii' )
-  entrypoint.add_input( 'o', 'output', 'The output TrackVis file after mapping.' )
+  entrypoint.add_input_list( 'vol', 'volume_to_map', 'The scalar volumes to map as a list, f.e. -v adc.nii fa.nii e1.nii' )
+  entrypoint.add_input( 'o', 'output', 'The output directory.' )
 
   options = entrypoint.parse( sys.argv )
 
   # attach a temporary environment
   tempdir = Utility.setupEnvironment()
 
-  FyMap.run( options.input, options.volumes_to_map, options.output, tempdir )
+  print '-' * 80
+  print os.path.splitext( os.path.basename( __file__ ) )[0] + ' running..'
+
+  if not options.verbose:
+    sys.stdout = open( os.devnull, 'wb' )
+
+  a = FyMap.run( options.input, options.volume_to_map, options.output, tempdir )
+
+  sys.stdout = sys.__stdout__
+
+  print 'Done!'
+  print 'Output TrackVis file: ', a
+  print '-' * 80
 
   # clean up temporary environment
-  Utility.teardownEnvironment( options.tempdir )
+  Utility.teardownEnvironment( tempdir )

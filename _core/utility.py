@@ -26,7 +26,7 @@ class Utility():
     '''
     for i in xrange( 0, len( l ), n ):
         yield l[i:i + n]
-        
+
   @staticmethod
   def split_list( alist, wanted_parts=1 ):
     '''
@@ -34,8 +34,8 @@ class Utility():
     '''
     length = len( alist )
     return [ alist[i * length // wanted_parts: ( i + 1 ) * length // wanted_parts]
-             for i in range( wanted_parts ) ]        
-        
+             for i in range( wanted_parts ) ]
+
   @staticmethod
   def natsort( l ):
     '''
@@ -48,7 +48,7 @@ class Utility():
     '''
     convert = lambda text: int( text ) if text.isdigit() else text.lower()
     alphanum_key = lambda key: [ convert( c ) for c in re.split( '([0-9]+)', key ) ]
-    return sorted( l, key=alphanum_key )        
+    return sorted( l, key=alphanum_key )
 
 
   @staticmethod
@@ -89,7 +89,7 @@ class Utility():
     '''
     Copy scalars from trkFile1 to trkFile2
     '''
-  
+
     s = nibabel.trackvis.read( trkFile1 )
     s2 = nibabel.trackvis.read( trkFile2 )
     tracks = s[0]
@@ -98,31 +98,38 @@ class Utility():
     origHeader2 = s2[1]
     tracksHeader = numpy.copy( s[1] )
     tracksHeader2 = numpy.copy( s2[1] )
-  
-    #if tracksHeader['n_count'] != tracksHeader2['n_count']:
+
+    # if tracksHeader['n_count'] != tracksHeader2['n_count']:
     #  c.error( 'The track counts do not match!' )
     #  sys.exit( 2 )
-  
+
     # now copy
     tracksHeader2['n_scalars'] = tracksHeader['n_scalars']
     tracksHeader2['scalar_name'] = tracksHeader['scalar_name']
-  
+
     newTracks2 = []
-  
+
     for tCounter, t in enumerate( tracks ):
-  
+
       tCoordinates = t[0]
       tScalars = t[1]
-  
+
       # copy scalars over
-      #tracks2[tCounter][1] = numpy.copy( tScalars )
+      # tracks2[tCounter][1] = numpy.copy( tScalars )
       newTracks2.append( ( tracks2[tCounter][0], tScalars[:], tracks2[tCounter][2] ) )
-  
+
     # write trkFile2 with update scalars
     nibabel.trackvis.write( outputFile, newTracks2, tracksHeader2 )
-  
-    print 'Copied Scalars!' 
 
+    print 'Copied Scalars!'
+
+
+  @staticmethod
+  def get_file_name( path ):
+    '''
+    Return the filename without extension of a given path.
+    '''
+    return os.path.splitext( os.path.basename( path ) )[0].replace( '.nii', '' )
 
   @staticmethod
   def setupEnvironment():
