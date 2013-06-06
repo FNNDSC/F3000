@@ -17,7 +17,7 @@ class FySurfaceMap():
   '''
 
   @staticmethod
-  def run( input, brain, left_hemi, right_hemi, k, output, tempdir ):
+  def run( input, brain, left_hemi, right_hemi, k, decimate, output, tempdir ):
     '''
     Runs the mapping stage.
     '''
@@ -74,7 +74,8 @@ if __name__ == "__main__":
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
   entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'rh', 'right_hemi', 'The right hemisphere Freesurfer surface.' )
-  entrypoint.add_input( 'k', 'k', 'The number of closest neighbors to map. DEFAULT: 1', False, 1 )
+  entrypoint.add_input( 'k', 'k', 'The number of closest neighbors to map. NOT IMPLEMENTED YET! DEFAULT: 1', False, 1 )
+  entrypoint.add_input( 'd', 'decimate', 'Surface decimation level to reduce the number of vertices. f.e. -d 0.333 reduces vertex count to 1/3. DEFAULT: 1.0 which means no decimation.', False, 1.0)
   entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
 
   options = entrypoint.parse( sys.argv )
@@ -89,7 +90,7 @@ if __name__ == "__main__":
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a, b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.output, tempdir )
+  a, b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.decimate, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__

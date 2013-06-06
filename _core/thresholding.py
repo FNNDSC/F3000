@@ -49,13 +49,8 @@ class Thresholding():
     # load the freesurfer label file
     vertices = nibabel.freesurfer.read_label( label_file )
 
-    print offset
-    print vertices
-
     # add offset
     vertices = [v + offset for v in vertices]
-
-    print vertices
 
     # sort the vertices by using a set(..)
     Thresholding.threshold( fibers_file, scalar_name, set( vertices ), output_fibers_file )
