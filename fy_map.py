@@ -52,9 +52,9 @@ class FyMap():
     Mapping.map( input_file, volumes_to_map, output_file )
 
     # 2. STEP: copy data to the output directory
-    shutil.copy( output_file, output )
+    shutil.copyfile( output_file, output )
 
-    return os.path.join( output, os.path.basename( output_file ) )
+    return output
 
 
 #
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input_list( 'vol', 'volume_to_map', 'The scalar volumes to map as a list, f.e. -v adc.nii fa.nii e1.nii' )
-  entrypoint.add_input( 'o', 'output', 'The output directory.' )
+  entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
 
   options = entrypoint.parse( sys.argv )
 

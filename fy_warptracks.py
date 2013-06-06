@@ -32,10 +32,6 @@ class FyWarpTracks():
     if not os.path.exists( matrix ):
       raise Exception( 'Could not find the matrix file!' )
 
-    if not os.path.exists( output ):
-      # create output directory
-      os.mkdir( output )
-
     # use a temporary workspace
     # .. and copy all working files
     input_file = os.path.join( tempdir, os.path.basename( input ) )
@@ -55,9 +51,9 @@ class FyWarpTracks():
     Registration.warp_fibers( input_file, diffusion_file, brain_file, matrix_file, output_file )
 
     # 2. STEP: store the warped output file in the output folder
-    shutil.copy( output_file, output )
+    shutil.copyfile( output_file, output )
 
-    return os.path.join( output, os.path.basename( output_file ) )
+    return output
 
 #
 # entry point
@@ -69,7 +65,7 @@ if __name__ == "__main__":
   entrypoint.add_input( 'd', 'diffusion', 'The original diffusion volume.' )
   entrypoint.add_input( 'b', 'brain', 'The original structural scan.' )
   entrypoint.add_input( 'm', 'matrix', 'The FLIRT registration matrix.' )
-  entrypoint.add_input( 'o', 'output', 'The output directory.' )
+  entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
 
   options = entrypoint.parse( sys.argv )
 

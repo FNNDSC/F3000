@@ -17,56 +17,49 @@ class FySurfaceMap():
   '''
 
   @staticmethod
-  def run( options ):
+  def run( input, brain, left_hemi, right_hemi, k, output, tempdir ):
     '''
     Runs the mapping stage.
-    
-    required inputs:
-      options.fibers_to_map
-      options.brain
-      options.lh_smoothwm
-      options.rh_smoothwm
-      options.fibers_mapped
     '''
 
     # validate inputs
-    if not os.path.exists( options.fibers ):
+    if not os.path.exists( input ):
       raise Exception( 'Could not find the input fibers file!' )
 
-    if not os.path.exists( options.lh_smoothwm ):
+    if not os.path.exists( left_hemi ):
       raise Exception( 'Could not find the input left hemisphere surface file!' )
 
-    if not os.path.exists( options.rh_smoothwm ):
+    if not os.path.exists( right_hemi ):
       raise Exception( 'Could not find the input right hemisphere surface file!' )
 
-
     # use a temporary workspace
-    tempdir = options.tempdir
     # .. and copy all working files
-    fibers_to_map_file = os.path.join( tempdir, os.path.basename( options.fibers_to_map ) )
+    input_file = os.path.join( tempdir, os.path.basename( input ) )
     brain_file = os.path.join( tempdir, os.path.basename( options.brain ) )
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
-    lh_smoothwm_file = os.path.join( tempdir, os.path.basename( options.lh_smoothwm ) )
-    lh_smoothwm_nover2ras_file = lh_smoothwm_file + '.nover2ras'
-    rh_smoothwm_file = os.path.join( tempdir, os.path.basename( options.rh_smoothwm ) )
-    rh_smoothwm_nover2ras_file = rh_smoothwm_file + '.nover2ras'
-    fibers_mapped_file = os.path.join( tempdir, os.path.basename( options.fibers_mapped ) )
+    left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
+    left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
+    right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
+    right_hemi_nover2ras_file = right_hemi_file + '.nover2ras'
+    output_file = os.path.join( tempdir, os.path.basename( output ) )
 
-    shutil.copy( options.brain, brain_file )
-    shutil.copy( options.fibers_to_map, fibers_to_map_file )
-    shutil.copy( options.lh_smoothwm, lh_smoothwm_file )
-    shutil.copy( options.rh_smoothwm, rh_smoothwm_file )
+    shutil.copy( input, input_file )
+    shutil.copy( brain, brain_file )
+    shutil.copy( left_hemi, left_hemi_file )
+    shutil.copy( right_hemi, right_hemi_file )
 
     # 1. STEP: transform the input surfaces
-    SurfaceMapping.transform( lh_smoothwm_file, identity_matrix_file, lh_smoothwm_nover2ras_file )
-    SurfaceMapping.transform( rh_smoothwm_file, identity_matrix_file, rh_smoothwm_nover2ras_file )
+    # no idea if we really need this..
+    SurfaceMapping.transform( left_hemi_file, identity_matrix_file, left_hemi_nover2ras_file )
+    SurfaceMapping.transform( right_hemi_file, identity_matrix_file, right_hemi_nover2ras_file )
 
     # 2. STEP: map the vertices
-    SurfaceMapping.map( fibers_to_map_file, brain_file, lh_smoothwm_nover2ras_file, rh_smoothwm_nover2ras_file, fibers_mapped_file )
+    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file )
 
     # 3. STEP: copy data to the proper output places
-    shutil.copyfile( fibers_mapped_file, options.fibers_mapped )
+    shutil.copyfile( output_file, output )
 
+    return output, k
 
 #
 # entry point
@@ -74,18 +67,34 @@ class FySurfaceMap():
 if __name__ == "__main__":
   entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file.' )
 
-  entrypoint.add_input( 'f', 'fibers_to_map', 'The input TrackVis file.' )
+  entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
-  entrypoint.add_input( 'lh', 'lh_smoothwm', 'The left hemisphere Freesurfer surface.' )
-  entrypoint.add_input( 'rh', 'rh_smoothwm', 'The right hemisphere Freesurfer surface.' )
-  entrypoint.add_input( 'fm', 'fibers_mapped', 'The output TrackVis file after mapping.' )
+  entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )
+  entrypoint.add_input( 'rh', 'right_hemi', 'The right hemisphere Freesurfer surface.' )
+  entrypoint.add_input( 'k', 'k', 'The number of closest neighbors to map. DEFAULT: 1', False, 1 )
+  entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
 
   options = entrypoint.parse( sys.argv )
 
   # attach a temporary environment
-  options.tempdir = Utility.setupEnvironment()
+  tempdir = Utility.setupEnvironment()
 
-  FySurfaceMap.run( options )
+  print '-' * 80
+  print os.path.splitext( os.path.basename( __file__ ) )[0] + ' running..'
+  print 'Look-up Neighbors: ', str(b)  
+  
+  if not options.verbose:
+    sys.stdout = open( os.devnull, 'wb' )
+    sys.stderr = open( os.devnull, 'wb' )
 
+  a,b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.output, tempdir )
+
+  sys.stdout = sys.__stdout__
+  sys.stderr = sys.__stderr__
+
+  print 'Output mapped TrackVis file: ', a
+  print 'Done!'
+  print '-' * 80
+  
   # clean up temporary environment
-  Utility.teardownEnvironment( options.tempdir )
+  Utility.teardownEnvironment( tempdir )
