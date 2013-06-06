@@ -26,6 +26,9 @@ class FySurfaceMap():
     if not os.path.exists( input ):
       raise Exception( 'Could not find the input fibers file!' )
 
+    if not os.path.exists( brain ):
+      raise Exception( 'Could not find the input brain file!' )
+
     if not os.path.exists( left_hemi ):
       raise Exception( 'Could not find the input left hemisphere surface file!' )
 
@@ -35,7 +38,7 @@ class FySurfaceMap():
     # use a temporary workspace
     # .. and copy all working files
     input_file = os.path.join( tempdir, os.path.basename( input ) )
-    brain_file = os.path.join( tempdir, os.path.basename( options.brain ) )
+    brain_file = os.path.join( tempdir, os.path.basename( brain ) )
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
     left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
@@ -81,20 +84,20 @@ if __name__ == "__main__":
 
   print '-' * 80
   print os.path.splitext( os.path.basename( __file__ ) )[0] + ' running..'
-  print 'Look-up Neighbors: ', str(b)  
-  
+
   if not options.verbose:
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a,b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.output, tempdir )
+  a, b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__
 
+  print 'Look-up Neighbors: ', str( b )
   print 'Output mapped TrackVis file: ', a
   print 'Done!'
   print '-' * 80
-  
+
   # clean up temporary environment
   Utility.teardownEnvironment( tempdir )

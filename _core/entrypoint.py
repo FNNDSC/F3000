@@ -49,6 +49,11 @@ class Entrypoint( object ):
 
     self.__entrypoint.add_argument( '-' + short, '--' + long, action='store', dest=long, default=defaultValue, help=helpText, required=requiredValue )
 
+  def add_choices( self, name, choices_list, help_text, default_value ):
+    '''
+    '''
+    self.__entrypoint.add_argument( name, choices=choices_list, help=help_text, default=default_value, nargs='?' )
+
   def add_input_list( self, short, long, helpText, defaultValue=None ):
     '''
     '''
