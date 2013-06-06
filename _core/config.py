@@ -22,6 +22,15 @@ MRICONVERT_COMMAND = '. chb-fs stable; mri_convert %source% %target%'
 #
 MRISTRANSFORM_COMMAND = '. chb-fs stable; mris_transform %surface% %matrix% %output_surface%'
 
+# the external mris_decimate tool
+#  %decimation_level%
+#    - the decimation leven 0..1
+#  %surface%
+#    - the input surface
+#  %output_surface%
+#    - the output surface
+MRISDECIMATE_COMMAND = '. chb-fs stable; mris_decimate -d %decimation_level% %surface% %output_surface%'
+
 # the external diffusion2nrrd tool
 #  %diffusion_directory%
 #    - the DICOM diffusion directory

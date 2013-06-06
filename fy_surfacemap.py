@@ -42,27 +42,40 @@ class FySurfaceMap():
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
     left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
+    left_hemi_decimate_file = left_hemi_file + '.decimated'
     right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
     right_hemi_nover2ras_file = right_hemi_file + '.nover2ras'
+    right_hemi_decimate_file = right_hemi_file + '.decimated'
     output_file = os.path.join( tempdir, os.path.basename( output ) )
 
     shutil.copy( input, input_file )
     shutil.copy( brain, brain_file )
     shutil.copy( left_hemi, left_hemi_file )
     shutil.copy( right_hemi, right_hemi_file )
+    shutil.copy( left_hemi, left_hemi_decimate_file )
+    shutil.copy( right_hemi, right_hemi_decimate_file )
 
-    # 1. STEP: transform the input surfaces
-    # no idea if we really need this..
-    SurfaceMapping.transform( left_hemi_file, identity_matrix_file, left_hemi_nover2ras_file )
-    SurfaceMapping.transform( right_hemi_file, identity_matrix_file, right_hemi_nover2ras_file )
+    # 1. STEP: decimate the input surfaces
+    # only performs decimation if decimation level is <1.0
+    SurfaceMapping.decimate( left_hemi_file, decimate, left_hemi_decimate_file)
+    SurfaceMapping.decimate( right_hemi_file, decimate, right_hemi_decimate_file)
 
-    # 2. STEP: map the vertices
+    # 2. STEP: transform the decimated surfaces
+    SurfaceMapping.transform( left_hemi_decimate_file, identity_matrix_file, left_hemi_nover2ras_file )
+    SurfaceMapping.transform( right_hemi_decimate_file, identity_matrix_file, right_hemi_nover2ras_file )
+
+    # 3. STEP: map the vertices
     SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file )
 
-    # 3. STEP: copy data to the proper output places
+    # 4. STEP: copy data to the proper output places
+    if float(decimate) < 1.0:
+      # if the surfaces were decimated, also copy them
+      shutil.copy( left_hemi_decimate_file, os.path.dirname(output) )
+      shutil.copy( right_hemi_decimate_file, os.path.dirname(output) )
+      
     shutil.copyfile( output_file, output )
 
-    return output, k
+    return output, k, decimate
 
 #
 # entry point
@@ -90,11 +103,12 @@ if __name__ == "__main__":
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a, b = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.decimate, options.output, tempdir )
+  a, b, c = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.decimate, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__
 
+  print 'Decimation Level: ', str( c )
   print 'Look-up Neighbors: ', str( b )
   print 'Output mapped TrackVis file: ', a
   print 'Done!'
