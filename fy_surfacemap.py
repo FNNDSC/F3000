@@ -73,7 +73,7 @@ class FySurfaceMap():
     SurfaceMapping.inflate( right_hemi_nover2ras_file, right_hemi_inflate_file )
 
     # 4. STEP: map the vertices
-    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file )
+    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file, left_hemi_splitext[1] )
 
     # 5. STEP: copy data to the proper output places
     if float( decimate ) < 1.0:
@@ -85,13 +85,13 @@ class FySurfaceMap():
     shutil.copy( right_hemi_inflate_file, os.path.dirname( output ) )
     shutil.copyfile( output_file, output )
 
-    return output, k, decimate
+    return output, k, decimate, os.path.join( os.path.dirname( output ), os.path.basename( left_hemi_inflate_file ) ), os.path.join( os.path.dirname( output ), os.path.basename( right_hemi_inflate_file ) )
 
 #
 # entry point
 #
 if __name__ == "__main__":
-  entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file. Decimate surfaces on request and always create inflated surfaces as well.' )
+  entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file. Decimate surfaces on request and always create inflated surfaces as well. The scalar name is the file extension of the left hemisphere surface.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a, b, c = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.decimate, options.output, tempdir )
+  a, b, c, d, e = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.k, options.decimate, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__
@@ -121,6 +121,8 @@ if __name__ == "__main__":
   print 'Decimation Level: ', str( c )
   print 'Look-up Neighbors: ', str( b )
   print 'Output mapped TrackVis file: ', a
+  print 'Output inflated left hemisphere surface: ', d
+  print 'Output inflated right hemisphere surface: ', e
   print 'Done!'
   print '-' * 80
 
