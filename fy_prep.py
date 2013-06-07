@@ -76,14 +76,16 @@ if __name__ == "__main__":
   tempdir = Utility.setupEnvironment()
 
   print '-' * 80
-  print os.path.splitext( os.path.basename( __file__ ) )[0] + ' running.. (Ignore two errors)'
+  print os.path.splitext( os.path.basename( __file__ ) )[0] + ' running..'
 
   if not options.verbose:
     sys.stdout = open( os.devnull, 'wb' )
+    sys.stderr = open( os.devnull, 'wb' )
 
   diffusion_file, bvals_file, bvecs_file, qc_report_file = FyPrep.run( options.input, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
+  sys.stderr = sys.__stderr__
 
   print 'Done!'
   print 'Output diffusion file: ', diffusion_file
