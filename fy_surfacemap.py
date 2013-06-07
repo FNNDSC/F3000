@@ -73,7 +73,7 @@ class FySurfaceMap():
     SurfaceMapping.inflate( right_hemi_nover2ras_file, right_hemi_inflate_file )
 
     # 4. STEP: map the vertices
-    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file, left_hemi_splitext[1] )
+    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file, left_hemi_splitext[1].replace( '.', '' ) )
 
     # 5. STEP: copy data to the proper output places
     if float( decimate ) < 1.0:
