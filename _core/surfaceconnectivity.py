@@ -8,7 +8,7 @@ import os, sys, subprocess, multiprocessing, time
 # third-party imports
 import nibabel
 import numpy
-from scipy.sparse import csc_matrix
+import tables
 
 # fyborg imports
 import _actions
@@ -41,15 +41,22 @@ class SurfaceConnectivity():
     except:
       raise Exception( 'Scalar name was not found.' )
 
-    print 'allocating matrix with size ', str(len(lh_verts)+len(rh_verts))+'x'+str(len(lh_verts)+len(rh_verts))
-    matrix = csc_matrix((len(lh_verts)+len(rh_verts)+1,len(lh_verts)+len(rh_verts)+1))
-    print 'allocated.'
+    #print 'allocating matrix with size ', str( len( lh_verts ) + len( rh_verts ) ) + 'x' + str( len( lh_verts ) + len( rh_verts ) )
+    # matrix = csc_matrix((len(lh_verts)+len(rh_verts)+1,len(lh_verts)+len(rh_verts)+1))
+
+    atom = tables.UInt8Atom()
+    shape = (len(lh_verts)+len(rh_verts)+1,len(lh_verts)+len(rh_verts)+1)
+    filters = tables.Filters( complevel=5, complib='zlib' )
+    h5f = tables.openFile( output_matrix_file, 'w' )
+    matrix = h5f.createCArray( h5f.root, 'carray', atom, shape, filters=filters )
+
+    #print 'allocated.'
 
     # now loop through the streamlines,
     # grab the mapped value,
     # increase the counter for the mapped value (and add the mapped value to the matrix before if it didn't exist)
     for sCounter, s in enumerate( streamlines ):
-      
+
       coordinates = s[0]
       scalars = s[1]
 
@@ -58,10 +65,12 @@ class SurfaceConnectivity():
 
       # increase counter
       matrix[start_point_scalar, end_point_scalar] += 1
+
+      #print 'adding ', start_point_scalar, end_point_scalar, '   #',sCounter,'of', len(streamlines)
       
-    # symmetrize
-    matrix = matrix + matrix.T - numpy.diag( matrix.diagonal() )
-    
+      # symmetrize
+      if start_point_scalar != end_point_scalar:
+        matrix[end_point_scalar, start_point_scalar] += 1
+
     # and store them
-    numpy.savetxt( output_matrix_file, matrix, delimiter="," )
-      
+    h5f.close()
