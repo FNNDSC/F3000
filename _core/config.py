@@ -31,6 +31,13 @@ MRISTRANSFORM_COMMAND = '. chb-fs stable; mris_transform %surface% %matrix% %out
 #    - the output surface
 MRISDECIMATE_COMMAND = '. chb-fs stable; mris_decimate -d %decimation_level% %surface% %output_surface%'
 
+# the external mris_inflate tool
+#  %surface%
+#    - the input surface
+#  %output_surface%
+#    - the output surface
+MRISINFLATE_COMMAND = '. chb-fs stable; mris_inflate %surface% %output_surface%'
+
 # the external diffusion2nrrd tool
 #  %diffusion_directory%
 #    - the DICOM diffusion directory
