@@ -42,12 +42,14 @@ class FySurfaceMap():
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
     left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
-    left_hemi_splitext = os.path.splitext(left_hemi_file)
-    left_hemi_decimate_file = left_hemi_splitext[0] + '.decimated' + left_hemi_splitext[1]
+    left_hemi_splitext = os.path.splitext( left_hemi_file )
+    left_hemi_decimate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.decimated' + left_hemi_splitext[1] )
+    left_hemi_inflate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.decimated.inflated' )
     right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
     right_hemi_nover2ras_file = right_hemi_file + '.nover2ras'
-    right_hemi_splitext = os.path.splitext(right_hemi_file)
-    right_hemi_decimate_file = right_hemi_splitext[0] + '.decimated' + right_hemi_splitext[1]
+    right_hemi_splitext = os.path.splitext( right_hemi_file )
+    right_hemi_decimate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.decimated' + right_hemi_splitext[1] )
+    right_hemi_inflate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.decimated.inflated' )
     output_file = os.path.join( tempdir, os.path.basename( output ) )
 
     shutil.copy( input, input_file )
@@ -59,22 +61,28 @@ class FySurfaceMap():
 
     # 1. STEP: decimate the input surfaces
     # only performs decimation if decimation level is <1.0
-    SurfaceMapping.decimate( left_hemi_file, decimate, left_hemi_decimate_file)
-    SurfaceMapping.decimate( right_hemi_file, decimate, right_hemi_decimate_file)
+    SurfaceMapping.decimate( left_hemi_file, decimate, left_hemi_decimate_file )
+    SurfaceMapping.decimate( right_hemi_file, decimate, right_hemi_decimate_file )
 
     # 2. STEP: transform the decimated surfaces
     SurfaceMapping.transform( left_hemi_decimate_file, identity_matrix_file, left_hemi_nover2ras_file )
     SurfaceMapping.transform( right_hemi_decimate_file, identity_matrix_file, right_hemi_nover2ras_file )
 
-    # 3. STEP: map the vertices
+    # 3. STEP: create inflated versions of the decimated and transformed surfaces
+    SurfaceMapping.inflate( left_hemi_nover2ras_file, left_hemi_inflate_file )
+    SurfaceMapping.inflate( right_hemi_nover2ras_file, right_hemi_inflate_file )
+
+    # 4. STEP: map the vertices
     SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file )
 
-    # 4. STEP: copy data to the proper output places
-    if float(decimate) < 1.0:
+    # 5. STEP: copy data to the proper output places
+    if float( decimate ) < 1.0:
       # if the surfaces were decimated, also copy them
-      shutil.copy( left_hemi_decimate_file, os.path.dirname(output) )
-      shutil.copy( right_hemi_decimate_file, os.path.dirname(output) )
-      
+      shutil.copy( left_hemi_decimate_file, os.path.dirname( output ) )
+      shutil.copy( right_hemi_decimate_file, os.path.dirname( output ) )
+
+    shutil.copy( left_hemi_inflate_file, os.path.dirname( output ) )
+    shutil.copy( right_hemi_inflate_file, os.path.dirname( output ) )
     shutil.copyfile( output_file, output )
 
     return output, k, decimate
@@ -83,14 +91,14 @@ class FySurfaceMap():
 # entry point
 #
 if __name__ == "__main__":
-  entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file.' )
+  entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file. Decimate surfaces on request and always create inflated surfaces as well.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
   entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'rh', 'right_hemi', 'The right hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'k', 'k', 'The number of closest neighbors to map. NOT IMPLEMENTED YET! DEFAULT: 1', False, 1 )
-  entrypoint.add_input( 'd', 'decimate', 'Surface decimation level to reduce the number of vertices. f.e. -d 0.333 reduces vertex count to 1/3. DEFAULT: 1.0 which means no decimation.', False, 1.0)
+  entrypoint.add_input( 'd', 'decimate', 'Surface decimation level to reduce the number of vertices. f.e. -d 0.333 reduces vertex count to 1/3. DEFAULT: 1.0 which means no decimation.', False, 1.0 )
   entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
 
   options = entrypoint.parse( sys.argv )

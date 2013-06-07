@@ -152,4 +152,23 @@ class Utility():
     '''
     shutil.rmtree( tempdir )
 
+  @staticmethod
+  def write_freesurfer_curvature( filename, values ):
+    '''
+    '''
+    with open( filename, 'wb' ) as f:
+
+      # magic number
+      numpy.array( [255], dtype='>u1' ).tofile( f )
+      numpy.array( [255], dtype='>u1' ).tofile( f )
+      numpy.array( [255], dtype='>u1' ).tofile( f )
+
+      # vertices number and two un-used int4
+      numpy.array( [len( values )], dtype='>i4' ).tofile( f )
+      numpy.array( [0], dtype='>i4' ).tofile( f )
+      numpy.array( [1], dtype='>i4' ).tofile( f )
+
+      # now the data
+      numpy.array( values, dtype='>f4' ).tofile( f )
+
 

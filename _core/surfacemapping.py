@@ -19,7 +19,7 @@ class SurfaceMapping():
   '''
   Mapping of freesurfer surface vertex indices.
   '''
-  
+
   @staticmethod
   def transform( surface_file, matrix_file, output_surface_file ):
     '''
@@ -30,10 +30,10 @@ class SurfaceMapping():
     cmd = cmd.replace( '%surface%', surface_file )
     cmd = cmd.replace( '%matrix%', matrix_file )
     cmd = cmd.replace( '%output_surface%', output_surface_file )
-    
+
     sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
-  
+
 
   @staticmethod
   def map( fibers_file, brain_file, lh_smoothwm_file, rh_smoothwm_file, output_fibers_file, scalar_name='smoothwm' ):
@@ -50,17 +50,34 @@ class SurfaceMapping():
   def decimate( surface_file, decimation_level, output_surface_file ):
     '''
     '''
-    
-    if float(decimation_level) >= 1.0:
+
+    if float( decimation_level ) >= 1.0:
       # no decimation required
       return
-    
+
     # build the surface decimation command
     cmd = config.MRISDECIMATE_COMMAND
     cmd = cmd.replace( '%surface%', surface_file )
     cmd = cmd.replace( '%decimation_level%', decimation_level )
     cmd = cmd.replace( '%output_surface%', output_surface_file )
-    
+
     sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
     sp.communicate()
-    
+
+
+  @staticmethod
+  def inflate( surface_file, output_surface_file ):
+    '''
+    '''
+
+    # build the surface inflation command
+    cmd = config.MRISINFLATE_COMMAND
+    cmd = cmd.replace( '%surface%', surface_file )
+    cmd = cmd.replace( '%output_surface%', output_surface_file )
+
+    sp = subprocess.Popen( ["/bin/bash", "-c", cmd], bufsize=0, stdout=sys.stdout, stderr=sys.stderr )
+    sp.communicate()
+
+
+
+
