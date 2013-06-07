@@ -30,10 +30,6 @@ class FyMap():
       if not os.path.exists( v ):
         raise Exception( 'Could not find the volume file ' + v + '!' )
 
-    if not os.path.exists( output ):
-      # create output directory
-      os.mkdir( output )
-
     # use a temporary workspace
     # .. and copy all working files
     input_file = os.path.join( tempdir, os.path.basename( input ) )
