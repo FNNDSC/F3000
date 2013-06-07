@@ -42,10 +42,12 @@ class FySurfaceMap():
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
     left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
-    left_hemi_decimate_file = left_hemi_file + '.decimated'
+    left_hemi_splitext = os.path.splitext(left_hemi_file)
+    left_hemi_decimate_file = left_hemi_splitext[0] + '.decimated' + left_hemi_splitext[1]
     right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
     right_hemi_nover2ras_file = right_hemi_file + '.nover2ras'
-    right_hemi_decimate_file = right_hemi_file + '.decimated'
+    right_hemi_splitext = os.path.splitext(right_hemi_file)
+    right_hemi_decimate_file = right_hemi_splitext[0] + '.decimated' + right_hemi_splitext[1]
     output_file = os.path.join( tempdir, os.path.basename( output ) )
 
     shutil.copy( input, input_file )
