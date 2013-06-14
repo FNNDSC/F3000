@@ -1,5 +1,6 @@
 from entrypoint import Entrypoint
 from looper import Looper
+from looper_with_matrix import LooperWithMatrix
 from mapping import Mapping
 from surfacemapping import SurfaceMapping
 from preparation import Preparation

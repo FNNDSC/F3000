@@ -77,7 +77,7 @@ class SurfaceConnectivity():
     h5f.close()
 
   @staticmethod
-  def creature_curvature_files( matrix_file, left_hemi_file, right_hemi_file, left_curvature_output_file, right_curvature_output_file ):
+  def creature_curvature_files( matrix_file, left_hemi_file, right_hemi_file, left_curvature_output_file, right_curvature_output_file, manual=False ):
     '''
     '''
 
@@ -92,12 +92,35 @@ class SurfaceConnectivity():
 
     m = h5f.root.carray
 
-    # sum along one axis (only one axis is fine since the matrix is symmetric)
-    summed = numpy.sum( m, axis=0 )
+    if not manual:
+      
+      # if manual flag is off, try the numpy.sum function
+      sum_vector = numpy.sum(m, axis=0)
+
+    else:
+  
+      # the numpy.sum function fails with a memoryerror for larger files
+  
+      # sum along both axis since the matrix is not symmetric anymore
+      sum_vector = numpy.zeros(m.shape[0]);
+      
+      
+      for i in xrange(m.shape[0]):
+        for j in xrange(m.shape[1]):
+#          value = m[i,j] 
+#          if value!=0:
+#            print value, i, j
+          sum_vector[j] += m[i,j]
+          sum_vector[j] += m[j,i]
+    
+      #sum1 = numpy.sum(m, axis=0, out=sum_vector)
+    set_printoptions(threshold=nan)
+    print sum_vector
+
 
     # write curvature files
-    Utility.write_freesurfer_curvature( left_curvature_output_file, summed[0:len( lh_vertices )] )
-    Utility.write_freesurfer_curvature( right_curvature_output_file, summed[len( lh_vertices ):] )  # here we start with the offset
+    Utility.write_freesurfer_curvature( left_curvature_output_file, sum_vector[0:len( lh_vertices )] )
+    Utility.write_freesurfer_curvature( right_curvature_output_file, sum_vector[len( lh_vertices ):] )  # here we start with the offset
 
     # close the hdf5 file
     h5f.close()

@@ -11,15 +11,15 @@ import glob, os, shutil, sys, tempfile
 from _core import *
 
 
-class FySurfaceMap():
+class FySuperSurfaceConnectivity():
   '''
-  Map Freesurfer vertices to a TrackVis file.
+  Create a surface connectivity matrix using k-neighboring vertices.
   '''
 
   @staticmethod
-  def run( input, brain, left_hemi, right_hemi, decimate, output, tempdir ):
+  def run( input, brain, left_hemi, right_hemi, k, decimate, output, tempdir ):
     '''
-    Runs the mapping stage.
+    Runs the super connectivity stage.
     '''
 
     # validate inputs
@@ -35,24 +35,31 @@ class FySurfaceMap():
     if not os.path.exists( right_hemi ):
       raise Exception( 'Could not find the input right hemisphere surface file!' )
 
+    if not os.path.exists( output ):
+      # create output directory
+      os.mkdir( output )
+
+
     # use a temporary workspace
     # .. and copy all working files
     input_file = os.path.join( tempdir, os.path.basename( input ) )
     brain_file = os.path.join( tempdir, os.path.basename( brain ) )
     identity_matrix_file = os.path.join( os.path.dirname( os.path.realpath( __file__ ) ), 'identity.xfm' )
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
-    left_hemi_nover2ras_file = left_hemi_file + '.nover2ras'
+    left_hemi_nover2ras_file = left_hemi_file + '.super.nover2ras'
     left_hemi_splitext = os.path.splitext( left_hemi_file )
-    left_hemi_decimate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.decimated' + left_hemi_splitext[1] )
-    left_hemi_inflate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.decimated.inflated' )
+    left_hemi_decimate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.super.decimated' + left_hemi_splitext[1] )
+    left_hemi_inflate_file = os.path.join( tempdir, left_hemi_splitext[0] + '.super.decimated.inflated' )
     right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
-    right_hemi_nover2ras_file = right_hemi_file + '.nover2ras'
+    right_hemi_nover2ras_file = right_hemi_file + '.super.nover2ras'
     right_hemi_splitext = os.path.splitext( right_hemi_file )
-    right_hemi_decimate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.decimated' + right_hemi_splitext[1] )
-    right_hemi_inflate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.decimated.inflated' )
+    right_hemi_decimate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.super.decimated' + right_hemi_splitext[1] )
+    right_hemi_inflate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.super.decimated.inflated' )
 
-    print output, tempdir
-    output_file = os.path.join( tempdir, os.path.basename( output ) )
+    # output files
+    connectivity_matrix_file = os.path.join( tempdir, 'supersurfaceconnectivity.h5' )
+    left_crv_file = os.path.join( tempdir, 'lh.supersurfaceconnectivity.crv' )
+    right_crv_file = os.path.join( tempdir, 'rh.supersurfaceconnectivity.crv' )
 
     shutil.copy( input, input_file )
     shutil.copy( brain, brain_file )
@@ -74,33 +81,40 @@ class FySurfaceMap():
     SurfaceMapping.inflate( left_hemi_nover2ras_file, left_hemi_inflate_file )
     SurfaceMapping.inflate( right_hemi_nover2ras_file, right_hemi_inflate_file )
 
-    # 4. STEP: map the vertices
-    SurfaceMapping.map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, output_file, left_hemi_splitext[1].replace( '.', '' ) )
+    # 4. STEP: create the super connectivity matrix
+    SurfaceMapping.super_map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, k, connectivity_matrix_file )
+
+    # 5. STEP: create the curvature files
+    SurfaceConnectivity.creature_curvature_files( connectivity_matrix_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, left_crv_file, right_crv_file, manual=True )
 
     # 5. STEP: copy data to the proper output places
     if float( decimate ) < 1.0:
       # if the surfaces were decimated, also copy them
-      shutil.copy( left_hemi_decimate_file, os.path.dirname( output ) )
-      shutil.copy( right_hemi_decimate_file, os.path.dirname( output ) )
+      shutil.copy( left_hemi_decimate_file, output )
+      shutil.copy( right_hemi_decimate_file, output )
 
-    shutil.copy( left_hemi_inflate_file, os.path.dirname( output ) )
-    shutil.copy( right_hemi_inflate_file, os.path.dirname( output ) )
-    shutil.copyfile( output_file, output )
+    #shutil.copy( left_hemi_inflate_file, output )
+    #shutil.copy( right_hemi_inflate_file, output )
 
-    return output, decimate, os.path.join( os.path.dirname( output ), os.path.basename( left_hemi_inflate_file ) ), os.path.join( os.path.dirname( output ), os.path.basename( right_hemi_inflate_file ) )
+    shutil.copy( connectivity_matrix_file, output )
+    shutil.copy( left_crv_file, output )
+    shutil.copy( right_crv_file, output )
+
+    return os.path.join( output, os.path.basename( connectivity_matrix_file ) ), os.path.join( output, os.path.basename( left_crv_file ) ), os.path.join( output, os.path.basename( right_crv_file ) ), k, decimate
 
 #
 # entry point
 #
 if __name__ == "__main__":
-  entrypoint = Entrypoint( description='Map Freesurfer vertices to a TrackVis file. Decimate surfaces on request and always create inflated surfaces as well. The scalar name is the file extension of the left hemisphere surface.' )
+  entrypoint = Entrypoint( description='Create a surface connectivity matrix and matching Freesurfer curvature files using k-neighboring vertices. Decimate surfaces on request and always create inflated surfaces as well. By default, the 10 closest vertices are taken into account.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
   entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'rh', 'right_hemi', 'The right hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'd', 'decimate', 'Surface decimation level to reduce the number of vertices. f.e. -d 0.333 reduces vertex count to 1/3. DEFAULT: 1.0 which means no decimation.', False, 1.0 )
-  entrypoint.add_input( 'o', 'output', 'The output TrackVis file.' )
+  entrypoint.add_input( 'k', 'neighbors', 'The number of vertices to take into account. DEFAULT: 10', False, 10 )
+  entrypoint.add_input( 'o', 'output', 'The output directory.' )
 
   options = entrypoint.parse( sys.argv )
 
@@ -114,15 +128,16 @@ if __name__ == "__main__":
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a, c, d, e = FySurfaceMap.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.decimate, options.output, tempdir )
+  a, b, c, d, e = FySuperSurfaceConnectivity.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.neighbors, options.decimate, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__
 
-  print 'Decimation Level: ', str( c )
-  print 'Output mapped TrackVis file: ', a
-  print 'Output inflated left hemisphere surface: ', d
-  print 'Output inflated right hemisphere surface: ', e
+  print 'Decimation Level: ', str( e )
+  print 'Look-up Neighbors: ', str( d )
+  print 'Output super connectivity matrix file: ', a
+  print 'Output left super curvature file: ', b
+  print 'Output right super curvature file: ', c
   print 'Done!'
   print '-' * 80
 

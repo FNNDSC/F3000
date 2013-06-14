@@ -32,7 +32,7 @@ class FyPrep():
 
     # use a temporary workspace
     # .. and copy all working files
-    diffusion_directory = os.path.join( tempdir, os.path.basename( input ) )
+    diffusion_directory = os.path.join( tempdir, os.path.basename( os.path.normpath( input ) ) )
 
     diffusion_nrrd_file = os.path.join( tempdir, 'diffusion.nrrd' )
     diffusion_QCed_nrrd_file = os.path.join( tempdir, 'diffusion_QCed.nrrd' )

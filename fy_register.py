@@ -55,7 +55,7 @@ class FyRegister():
     if input2:
       shutil.copyfile( input2, input2_file )
 
-    if options.smooth:
+    if smooth:
       interpolation = 1  # trilinear interpolation
     else:
       interpolation = 0  # nearest-neighbor interpolation

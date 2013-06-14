@@ -36,47 +36,47 @@ def run( freesurfer_directory, diffusion_directory, output_directory, decimation
   #
   # RUN DTI PREP
   #
-  diffusion, bvals, bvecs, qc_report = FyPrep.run( diffusion_directory, output_directory, tempdir )
+  #diffusion, bvals, bvecs, qc_report = FyPrep.run( diffusion_directory, output_directory, tempdir )
 
   #
   # REGISTER DIFFUSION TO T1
   #
   smooth = False
-  warped_diffusion, warped_segmentation, matrix, inverse_matrix = FyRegister.run( diffusion, segmentation, brain, output_directory, smooth, tempdir )
+  #warped_diffusion, warped_segmentation, matrix, inverse_matrix = FyRegister.run( diffusion, segmentation, brain, output_directory, smooth, tempdir )
 
   #
   # RECONSTRUCT STREAMLINES
   #
-  fa, adc, evecs, fibers = FyReconstruct.run( diffusion, warped_segmentation, output_directory, tempdir )
+  #fa, adc, evecs, fibers = FyReconstruct.run( diffusion, warped_segmentation, output_directory, tempdir )
 
   #
   # WARP STREAMLINES
   #
   fibers_to_brain = os.path.join( output_directory, 'fibers_to_brain.trk' )
-  FyWarpTracks.run( fibers, diffusion, brain, matrix, fibers_to_brain )
+  #FyWarpTracks.run( fibers, diffusion, brain, matrix, fibers_to_brain, tempdir )
 
   #
   # MAP SCALARS IN DIFFUSION SPACE
   #
   fibers_mapped = os.path.join( output_directory, 'fibers_mapped.trk' )
-  FyMap.run( fibers, [adc, fa], fibers_mapped, tempdir )
+  #FyMap.run( fibers, [adc, fa], fibers_mapped, tempdir )
 
   #
   # COPY SCALARS TO WARPED STREAMLINES
   #
-  FyCopyScalars.run( fibers_mapped, fibers_to_brain, tempdir )
+  #FyCopyScalars.run( fibers_mapped, fibers_to_brain, tempdir )
 
   #
   # MAP SCALARS IN T1 SPACE
   #
   fibers_to_brain_mapped = os.path.join( output_directory, 'fibers_to_brain_mapped.trk' )
-  FyMap.run( fibers_to_brain, [segmentation], fibers_to_brain_mapped, tempdir )
+  #FyMap.run( fibers_to_brain, [segmentation], fibers_to_brain_mapped, tempdir )
 
   #
   # MAP SMOOTHWM VERTEX INDICES
   #
   fibers_with_vertices = os.path.join( output_directory, 'fibers_with_vertices.trk' )
-  FySurfaceMap.run( fibers_to_brain_mapped, brain, lh_smoothwm, rh_smoothwm, fibers_with_vertices, decimation_level, tempdir )
+  #FySurfaceMap.run( fibers_to_brain_mapped, brain, lh_smoothwm, rh_smoothwm, decimation_level, fibers_with_vertices, tempdir )
 
   #
   # SURFACE CONNECTIVITY
@@ -85,7 +85,7 @@ def run( freesurfer_directory, diffusion_directory, output_directory, decimation
     # use the decimated surfaces now
     lh_smoothwm = lh_smoothwm.replace( '.smoothwm', '.decimated.smoothwm' )
     rh_smoothwm = rh_smoothwm.replace( '.smoothwm', '.decimated.smoothwm' )
-  FySurfaceConnectivity.run( fibers_with_vertices, brain, lh_smoothwm, rh_smoothwm, 'smoothwm', output_directory, tempdir )
+  FySurfaceConnectivity.run( fibers_with_vertices, lh_smoothwm, rh_smoothwm, 'smoothwm', output_directory, tempdir )
 
 
   # clean up temporary environment
