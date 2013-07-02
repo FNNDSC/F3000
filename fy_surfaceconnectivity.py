@@ -42,7 +42,7 @@ class FySurfaceConnectivity():
     left_hemi_file = os.path.join( tempdir, os.path.basename( left_hemi ) )
     right_hemi_file = os.path.join( tempdir, os.path.basename( right_hemi ) )
 
-    connectivity_matrix_file = os.path.join( tempdir, 'surface_connectivity.h5' )
+    connectivity_matrix_file = os.path.join( tempdir, 'surface_connectivity.npy' )
     left_curvature_file = os.path.join( tempdir, 'lh.connectivity.crv' )
     right_curvature_file = os.path.join( tempdir, 'rh.connectivity.crv' )
 
@@ -54,7 +54,7 @@ class FySurfaceConnectivity():
     SurfaceConnectivity.connect( input_file, scalarname, left_hemi_file, right_hemi_file, connectivity_matrix_file )
 
     # 2. STEP: create curvature files
-    SurfaceConnectivity.creature_curvature_files( connectivity_matrix_file, left_hemi_file, right_hemi_file, left_curvature_file, right_curvature_file )
+    SurfaceConnectivity.create_curvature_files( connectivity_matrix_file, left_hemi_file, right_hemi_file, left_curvature_file, right_curvature_file )
 
     # 2. STEP: copy data to the proper output places
     shutil.copy( connectivity_matrix_file, output )
@@ -67,7 +67,7 @@ class FySurfaceConnectivity():
 # entry point
 #
 if __name__ == "__main__":
-  entrypoint = Entrypoint( description='Create a connectivity matrix of vertices in HDF5 format and also create FREESURFER curvature files. This requires a TrackVis file with mapped vertices.' )
+  entrypoint = Entrypoint( description='Create a connectivity matrix of vertices in CSV format and also create FREESURFER curvature files. This requires a TrackVis file with mapped vertices.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )

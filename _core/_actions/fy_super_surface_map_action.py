@@ -1,7 +1,9 @@
 from fy_action import FyAction
 from fy_map_action import FyMapAction
+import ctypes
 import math
 import numpy
+import multiprocessing as mp
 import nibabel
 import scipy.spatial
 import tables
@@ -49,10 +51,13 @@ class FySuperSurfaceMapAction( FyMapAction ):
     self._rightTree = scipy.spatial.KDTree( self._rightVerticesRAS2 )
 
     # open the connectivity matrix file
-    atom = tables.UInt8Atom()
-    shape = ( len( leftVertices ) + len( rightVertices ), len( leftVertices ) + len( rightVertices ) )
-    self.__h5f = tables.openFile( matrixFile, 'w' )
-    self.__matrix = self.__h5f.createCArray( self.__h5f.root, 'carray', atom, shape )
+#    atom = tables.UInt8Atom()
+    self.__shape = ( len( leftVertices ) + len( rightVertices ), len( leftVertices ) + len( rightVertices ) )
+#    self.__h5f = tables.openFile( matrixFile, 'w' )
+#    self.__matrix = self.__h5f.createCArray( self.__h5f.root, 'carray', atom, shape )
+    #self.__matrix = numpy.zeros(shape, dtype=numpy.uint16)
+    self.__matrix = mp.Array(ctypes.c_ushort, self.__shape[0]*self.__shape[1])
+    self.__matrix_file = matrixFile
     self.__neighbors = int( radius )
 
   def scalarPerFiber( self, uniqueFiberId, coords, scalars ):
@@ -88,14 +93,17 @@ class FySuperSurfaceMapAction( FyMapAction ):
 
     # now we have good values in first_indices_nn and in last_indices_nn
     # including the right offset if necessary
-
-    for f in first_indices_nn:
-      for l in last_indices_nn:
-        # now increase the value in the matrix
-        
-        self.__matrix[f, l] += 1
-#        if f != l:  # for symmetry
-#          self.__matrix[l, f] += 1
+    with self.__matrix.get_lock():
+      
+      arr = numpy.ctypeslib.as_array(self.__matrix.get_obj())
+      m = arr.reshape(self.__shape)
+      for f in first_indices_nn:
+        for l in last_indices_nn:
+          # now increase the value in the matrix
+          
+          m[f, l] += 1
+          if f != l:  # for symmetry
+            m[l, f] += 1
 
 
     return FyAction.NoScalar
@@ -108,4 +116,6 @@ class FySuperSurfaceMapAction( FyMapAction ):
   def close_file(self):
     '''
     '''
-    self.__h5f.close()
+    m = numpy.ctypeslib.as_array(self.__matrix.get_obj())
+    m = m.reshape(self.__shape)
+    numpy.save( self.__matrix_file, m)

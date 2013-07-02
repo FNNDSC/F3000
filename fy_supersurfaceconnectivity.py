@@ -57,7 +57,7 @@ class FySuperSurfaceConnectivity():
     right_hemi_inflate_file = os.path.join( tempdir, right_hemi_splitext[0] + '.super.decimated.inflated' )
 
     # output files
-    connectivity_matrix_file = os.path.join( tempdir, 'supersurfaceconnectivity.h5' )
+    connectivity_matrix_file = os.path.join( tempdir, 'supersurfaceconnectivity.npy' )
     left_crv_file = os.path.join( tempdir, 'lh.supersurfaceconnectivity.crv' )
     right_crv_file = os.path.join( tempdir, 'rh.supersurfaceconnectivity.crv' )
 
@@ -85,7 +85,7 @@ class FySuperSurfaceConnectivity():
     SurfaceMapping.super_map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, k, connectivity_matrix_file )
 
     # 5. STEP: create the curvature files
-    SurfaceConnectivity.creature_curvature_files( connectivity_matrix_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, left_crv_file, right_crv_file, manual=True )
+    SurfaceConnectivity.create_curvature_files( connectivity_matrix_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, left_crv_file, right_crv_file, manual=True )
 
     # 5. STEP: copy data to the proper output places
     if float( decimate ) < 1.0:
@@ -106,14 +106,14 @@ class FySuperSurfaceConnectivity():
 # entry point
 #
 if __name__ == "__main__":
-  entrypoint = Entrypoint( description='Create a surface connectivity matrix and matching Freesurfer curvature files using k-neighboring vertices. Decimate surfaces on request and always create inflated surfaces as well. By default, the 10 closest vertices are taken into account.' )
+  entrypoint = Entrypoint( description='Create a surface connectivity matrix and matching Freesurfer curvature files using vertices in a radius k. Decimate surfaces on request and always create inflated surfaces as well. By default, the radius is 5 mm.' )
 
   entrypoint.add_input( 'i', 'input', 'The input TrackVis file.' )
   entrypoint.add_input( 'b', 'brain', 'The brain scan as the reference space.' )
   entrypoint.add_input( 'lh', 'left_hemi', 'The left hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'rh', 'right_hemi', 'The right hemisphere Freesurfer surface.' )
   entrypoint.add_input( 'd', 'decimate', 'Surface decimation level to reduce the number of vertices. f.e. -d 0.333 reduces vertex count to 1/3. DEFAULT: 1.0 which means no decimation.', False, 1.0 )
-  entrypoint.add_input( 'k', 'neighbors', 'The number of vertices to take into account. DEFAULT: 10', False, 10 )
+  entrypoint.add_input( 'r', 'radius', 'The radius in [mm] to take into account. DEFAULT: 5', False, 5 )
   entrypoint.add_input( 'o', 'output', 'The output directory.' )
 
   options = entrypoint.parse( sys.argv )
@@ -128,13 +128,13 @@ if __name__ == "__main__":
     sys.stdout = open( os.devnull, 'wb' )
     sys.stderr = open( os.devnull, 'wb' )
 
-  a, b, c, d, e = FySuperSurfaceConnectivity.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.neighbors, options.decimate, options.output, tempdir )
+  a, b, c, d, e = FySuperSurfaceConnectivity.run( options.input, options.brain, options.left_hemi, options.right_hemi, options.radius, options.decimate, options.output, tempdir )
 
   sys.stdout = sys.__stdout__
   sys.stderr = sys.__stderr__
 
   print 'Decimation Level: ', str( e )
-  print 'Look-up Neighbors: ', str( d )
+  print 'Look-up Radius: ', str( d )
   print 'Output super connectivity matrix file: ', a
   print 'Output left super curvature file: ', b
   print 'Output right super curvature file: ', c

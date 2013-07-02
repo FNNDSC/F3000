@@ -16,6 +16,7 @@ from fy_prep import FyPrep
 from fy_reconstruct import FyReconstruct
 from fy_register import FyRegister
 from fy_surfaceconnectivity import FySurfaceConnectivity
+from fy_supersurfaceconnectivity import FySuperSurfaceConnectivity
 from fy_surfacemap import FySurfaceMap
 from fy_warptracks import FyWarpTracks
 
@@ -87,6 +88,13 @@ def run( freesurfer_directory, diffusion_directory, output_directory, decimation
     rh_smoothwm = rh_smoothwm.replace( '.smoothwm', '.decimated.smoothwm' )
   FySurfaceConnectivity.run( fibers_with_vertices, lh_smoothwm, rh_smoothwm, 'smoothwm', output_directory, tempdir )
 
+  #
+  # SUPER SURFACE CONNECTIVITY
+  #
+  radius = 5
+  super_decimation_level = 0.5
+  FySuperSurfaceConnectivity(fibers_with_vertices, brain, lh_smoothwm, rh_smoothwm, radius, super_decimation_level, output_directory, tempdir)
+  
 
   # clean up temporary environment
   sys.stdout = sys.__stdout__

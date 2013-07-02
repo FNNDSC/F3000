@@ -29,7 +29,7 @@ class FySurfaceMapAction( FyMapAction ):
     for r in rightVertices:
       self._rightVerticesRAS.extend( numpy.dot( qFormM.I, r ) )
 
-    self._r_offset = len( self._leftMesh[0] ) + 1
+    self._r_offset = len( self._leftMesh[0] )
 
     self._leftVerticesRAS2 = []
     self._rightVerticesRAS2 = []

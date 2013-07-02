@@ -55,7 +55,7 @@ class SurfaceMapping():
     actions = [_actions.FySuperSurfaceMapAction( 'super', brain_file, lh_smoothwm_file, rh_smoothwm_file, connectivity_matrix_file, neighbors )]
     
     # start the mapping using the looper
-    Looper.loop( input_file, os.devnull, actions, True )
+    Looper.loop( input_file, os.devnull, actions )
     
     # clean-up
     actions[0].close_file()
