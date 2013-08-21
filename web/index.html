@@ -1,0 +1,148 @@
+<html>
+<head>
+<style type="text/css">
+
+html, body { 
+  background-color:#000;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden !important;  
+}
+
+
+</style>
+<script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js'></script>
+<!--<script type='text/javascript' src='http://get.goxtk.com/xtk_edge.js'></script>-->
+  <script type="text/javascript" src="../../X/lib/google-closure-library/closure/goog/base.js"></script>
+  <script type="text/javascript" src="../../X/xtk-deps.js"></script> 
+
+<script type='text/javascript' src='http://get.goxtk.com/xtk_xdat.gui.js'></script>
+<script type='text/javascript' src='logic.js'></script>
+<script type='text/javascript' src='ui.js'></script>
+
+<script>
+
+goog.require('X.renderer3D');
+goog.require('X.mesh');
+goog.require('X.fibers');
+
+var QUERIER = {
+
+  connectivity: {
+    radius: 10,
+    first_lines: null,
+    last_lines: null,
+    track: null,
+    id: -1
+  },
+
+  bundle: {
+    radius: 0.8,
+    'grow bundle!': do_bundles,
+    tracks: null
+  }
+
+}
+
+
+window.onload = function() {
+  
+  ren3d = new X.renderer3D();
+  ren3d.init();
+
+  lh = new X.mesh();
+  lh.opacity = 0.8;
+  lh.file = 'testdata/lh.dec3.smoothwm';
+
+  rh = new X.mesh();
+  rh.opacity = 0.8;
+  rh.file = 'testdata/rh.dec3.smoothwm';
+
+  fibers = new X.fibers();
+  fibers.file = 'testdata/fibers-to-brain.trk';
+  //fibers.file = 'tracks.single.trk';
+
+  ren3d.add(lh);
+  ren3d.add(rh);
+  //ren3d.add(fibers);
+
+  ren3d.onShowtime = function() {
+
+    ren3d.resetBoundingBox();
+
+    ren3d.onShowtime = function() {};
+
+    create_ui();
+
+  }
+
+  ren3d.render();
+
+  ren3d.camera.position = [0,300,0];
+
+  ren3d.container.onmouseup = do_connectivity;
+
+}
+
+function do_connectivity(e) {
+  
+  if (e.button == "2") {
+
+    $('#loading').show();
+
+    setTimeout(function() {
+
+      var ras = ren3d.pick3d(e.clientX, e.clientY, 2, 3);
+      if (!ras) {
+        $('#loading').hide();
+        return;
+      }
+
+      $.ajax({
+        url: "http://shaka.tch.harvard.edu:8888/connectivity/"+ras[0]+"/"+ras[1]+"/"+ras[2]+"/"+parseInt(QUERIER.connectivity.radius,10),
+        success: function(data) {
+
+          connectivity(data);
+
+        }
+
+      });
+
+    }, 10);
+
+  }
+}
+
+function do_bundles() {
+
+  $('#loading').show();
+
+  setTimeout(function() {
+
+    $.ajax({
+      url: "http://shaka.tch.harvard.edu:8888/bundle/"+parseInt(QUERIER.connectivity.id,10)+"/"+QUERIER.bundle.radius,
+      success: function(data) {
+
+        bundles(data);
+
+      }
+
+    });
+
+  }, 10);
+
+}
+
+
+</script>
+</head>
+
+<body>
+    <!-- Loading indicator -->
+    <div id='loading'
+      style='display: none; position: absolute; left: 47%; top: 50%;'>
+      <img src='loading.gif'>
+    </div>
+</body>
+</html>
