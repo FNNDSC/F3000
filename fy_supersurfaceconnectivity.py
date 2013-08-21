@@ -82,10 +82,10 @@ class FySuperSurfaceConnectivity():
     SurfaceMapping.inflate( right_hemi_nover2ras_file, right_hemi_inflate_file )
 
     # 4. STEP: create the super connectivity matrix
-    SurfaceMapping.super_map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, k, connectivity_matrix_file )
+    SurfaceMapping.super_map( input_file, brain_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, k, connectivity_matrix_file, left_crv_file, right_crv_file )
 
     # 5. STEP: create the curvature files
-    SurfaceConnectivity.create_curvature_files( connectivity_matrix_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, left_crv_file, right_crv_file, manual=True )
+    #SurfaceConnectivity.create_curvature_files( connectivity_matrix_file, left_hemi_nover2ras_file, right_hemi_nover2ras_file, left_crv_file, right_crv_file, manual=True )
 
     # 5. STEP: copy data to the proper output places
     if float( decimate ) < 1.0:
@@ -93,8 +93,8 @@ class FySuperSurfaceConnectivity():
       shutil.copy( left_hemi_decimate_file, output )
       shutil.copy( right_hemi_decimate_file, output )
 
-    #shutil.copy( left_hemi_inflate_file, output )
-    #shutil.copy( right_hemi_inflate_file, output )
+    shutil.copy( left_hemi_inflate_file, output )
+    shutil.copy( right_hemi_inflate_file, output )
 
     shutil.copy( connectivity_matrix_file, output )
     shutil.copy( left_crv_file, output )

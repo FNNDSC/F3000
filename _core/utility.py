@@ -171,4 +171,33 @@ class Utility():
       # now the data
       numpy.array( values, dtype='>f4' ).tofile( f )
 
+  @staticmethod
+  def get_fsm_cras(mesh):
+    '''
+    grabs the cras_x,y,z from the end of the freesurfer file
+    '''
+    cras = None
+    with open(mesh, 'rb') as f:
+      data = f.read()
+      data_size = len(data)
 
+      # start in the last quarter
+      data_p = int(data_size / 4)
+
+      while (data_p < data_size):
+        
+        if data[data_p] == 'c' and data[data_p+1] == 'r' and data[data_p+2] == 'a' and data[data_p+3] == 's':
+          
+          cras_start = data_p + 9
+          cras_end = cras_start
+
+          while (data[cras_end] != '\n'):
+            cras_end += 1
+
+          cras = data[cras_start:cras_end]
+          cras = cras.split(' ')
+
+        data_p += 1
+
+    return cras
+    

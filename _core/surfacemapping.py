@@ -49,16 +49,16 @@ class SurfaceMapping():
 
 
   @staticmethod
-  def super_map( input_file, brain_file, lh_smoothwm_file, rh_smoothwm_file, neighbors, connectivity_matrix_file ):
+  def super_map( input_file, brain_file, lh_smoothwm_file, rh_smoothwm_file, neighbors, connectivity_matrix_file, left_crv_file, right_crv_file ):
     '''
     '''
     actions = [_actions.FySuperSurfaceMapAction( 'super', brain_file, lh_smoothwm_file, rh_smoothwm_file, connectivity_matrix_file, neighbors )]
     
     # start the mapping using the looper
-    Looper.loop( input_file, os.devnull, actions )
+    Looper.loop( input_file, os.devnull, actions, True )
     
     # clean-up
-    actions[0].close_file()
+    actions[0].close_file(lh_smoothwm_file, rh_smoothwm_file,left_crv_file, right_crv_file )
     
 
 

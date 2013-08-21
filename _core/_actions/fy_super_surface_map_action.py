@@ -76,11 +76,17 @@ class FySuperSurfaceMapAction( FyMapAction ):
     first_indices_nn = self._leftTree.query_ball_point( first, self.__neighbors )
     first_right_indices_nn = self._rightTree.query_ball_point( first, self.__neighbors )
 
+    print first, last
+
+    print 'first_indices', first_indices_nn, first_right_indices_nn
+
     # now for the LAST POINT
     # check which surface vertex index is the closest to the last point
     # and use the lh and rh meshes to look this up
     last_indices_nn = self._leftTree.query_ball_point( last, self.__neighbors )
     last_right_indices_nn = self._rightTree.query_ball_point( last, self.__neighbors )
+
+    print 'last_indices', last_indices_nn, last_right_indices_nn
 
     # add the offset to all right hemisphere indices
     first_right_indices_nn = [v + self._r_offset for v in first_right_indices_nn]
@@ -101,6 +107,8 @@ class FySuperSurfaceMapAction( FyMapAction ):
         for l in last_indices_nn:
           # now increase the value in the matrix
           
+          print 'adding', f, l
+
           m[f, l] += 1
           if f != l:  # for symmetry
             m[l, f] += 1
@@ -113,9 +121,30 @@ class FySuperSurfaceMapAction( FyMapAction ):
     '''
     return FyAction.NoScalar
   
-  def close_file(self):
+  def close_file(self, left_hemi_file, right_hemi_file, left_curvature_output_file, right_curvature_output_file):
     '''
     '''
     m = numpy.ctypeslib.as_array(self.__matrix.get_obj())
     m = m.reshape(self.__shape)
+    
+    
+    #here
+    lh_vertices, lh_faces = nibabel.freesurfer.read_geometry( left_hemi_file )
+    rh_vertices, rh_faces = nibabel.freesurfer.read_geometry( right_hemi_file )
+    
+    sum_vector = numpy.sum( m, axis=0 )
+
+    import sys, os
+    sys.path.append(os.path.join( os.path.dirname( __file__ ),'../'))
+    from utility import Utility
+
+    # write curvature files
+    Utility.write_freesurfer_curvature( left_curvature_output_file, sum_vector[0:len( lh_vertices )] )
+    Utility.write_freesurfer_curvature( right_curvature_output_file, sum_vector[len( lh_vertices ):] )  # here we start with the offset
+    # end here
+    print 'crv written!!! FTW!'
+    
     numpy.save( self.__matrix_file, m)
+    
+    print 'stored matrix'
+    

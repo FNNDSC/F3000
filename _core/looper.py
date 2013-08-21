@@ -103,7 +103,7 @@ class Looper():
     #
     # Merging stage
     #
-    print "Merging tracks.." 
+    print "Merging tracks..", f
   
     outputTracks = []
     # now read all the created tempFiles and merge'em to one

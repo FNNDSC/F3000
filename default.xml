@@ -19,14 +19,14 @@
             <value>left-posterior-superior</value>
         </entry>
         <entry parameter="IMAGE_directions">
-            <value>1 -2e-16 5.17638e-17</value>
-            <value>2e-16 0.965926 -0.258819</value>
-            <value>0 0.258819 0.965926</value>
+            <value>1 0 0</value>
+            <value>0 0.999998 -0.00174533</value>
+            <value>0 0.00174533 0.999998</value>
         </entry>
         <entry parameter="IMAGE_size">
-            <value>110</value>
-            <value>110</value>
-            <value>68</value>
+            <value>128</value>
+            <value>128</value>
+            <value>70</value>
         </entry>
         <entry parameter="IMAGE_spacing">
             <value>2</value>
@@ -34,9 +34,9 @@
             <value>2</value>
         </entry>
         <entry parameter="IMAGE_origin">
-            <value>-110</value>
-            <value>-88.6521</value>
-            <value>-94.1531</value>
+            <value>-128</value>
+            <value>-127.878</value>
+            <value>-70.2233</value>
         </entry>
         <entry parameter="IMAGE_bCrop">
             <value>Yes</value>
@@ -98,94 +98,94 @@
             <value>0 0 0</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0010">
-            <value>0.999977 0.00605407 -0.00302399</value>
+            <value>0.999974 0.00505011 -0.00504503</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0011">
-            <value>0.768885 0.635992 -0.0658069</value>
+            <value>0.768133 0.636833 -0.0664536</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0012">
-            <value>0.256112 0.0196813 -0.966447</value>
+            <value>0.255961 0.029659 -0.966232</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0013">
-            <value>0.799669 0.101226 -0.591847</value>
+            <value>0.799392 0.111853 -0.590306</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0014">
-            <value>-0.45962 -0.876213 -0.144914</value>
+            <value>-0.459753 -0.878206 -0.131842</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0015">
-            <value>-0.22846 -0.857041 0.461831</value>
+            <value>-0.228343 -0.856652 0.462608</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0016">
-            <value>-0.262112 0.417439 0.870081</value>
+            <value>-0.263146 0.416903 0.870027</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0017">
-            <value>0.796726 -0.587424 -0.141987</value>
+            <value>0.797159 -0.589706 -0.129557</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0018">
-            <value>0.506056 -0.516584 -0.690686</value>
+            <value>0.506952 -0.515792 -0.690622</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0019">
-            <value>0.305398 0.142264 0.941537</value>
+            <value>0.30541 0.141516 0.941646</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0020">
-            <value>-0.797735 0.201124 0.568479</value>
+            <value>-0.798369 0.200651 0.567755</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0021">
-            <value>-0.802181 0.594841 0.0516597</value>
+            <value>-0.80191 0.596136 0.0395234</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0022">
-            <value>0.185304 -0.952775 -0.240588</value>
+            <value>0.185179 -0.955797 -0.228387</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0023">
-            <value>-0.388273 -0.113402 -0.91454</value>
+            <value>-0.388701 -0.112753 -0.914439</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0024">
-            <value>-0.132731 -0.668602 -0.731679</value>
+            <value>-0.133256 -0.668422 -0.731748</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0025">
-            <value>-0.33782 0.883842 -0.323577</value>
+            <value>-0.337516 0.88405 -0.323324</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0026">
-            <value>0.768768 -0.316458 0.555743</value>
+            <value>0.768017 -0.317442 0.55622</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0027">
-            <value>0.406478 0.670198 -0.620975</value>
+            <value>0.406064 0.670787 -0.62061</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0028">
-            <value>0.286088 0.765304 0.576597</value>
+            <value>0.286058 0.765645 0.576159</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0029">
-            <value>-0.765021 -0.438962 -0.471228</value>
+            <value>-0.766282 -0.437606 -0.470438</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0030">
-            <value>-0.178261 0.531125 -0.828329</value>
+            <value>-0.179007 0.532179 -0.827492</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0031">
-            <value>-0.768929 0.316109 -0.555719</value>
+            <value>-0.768118 0.317717 -0.555923</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0032">
-            <value>0.216714 0.975722 -0.0316467</value>
+            <value>0.216788 0.975671 -0.0327005</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0033">
-            <value>0.418238 -0.84265 0.339145</value>
+            <value>0.417162 -0.842853 0.339964</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0034">
-            <value>0.177542 -0.483318 0.857253</value>
+            <value>0.177178 -0.48417 0.856847</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0035">
-            <value>-0.338381 0.858448 0.385442</value>
+            <value>-0.338493 0.858467 0.385302</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0036">
-            <value>-0.784458 -0.515756 0.344415</value>
+            <value>-0.783558 -0.516767 0.344947</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0037">
-            <value>-0.420566 -0.264889 0.867732</value>
+            <value>-0.420441 -0.26566 0.867556</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0038">
-            <value>0.773039 0.361037 0.521596</value>
+            <value>0.773749 0.360725 0.520759</value>
         </entry>
         <entry parameter="DIFFUSION_DWMRI_gradient_0039">
-            <value>-0.998217 -0.0545535 -0.0242168</value>
+            <value>-0.9983 -0.0534782 -0.0231841</value>
         </entry>
         <entry parameter="DIFFUSION_bUseDiffusionProtocol">
             <value>Yes</value>
@@ -388,5 +388,8 @@
         <entry parameter="DTI_reportFileMode">
             <value>1</value>
         </entry>
+    </entry>
+</ProtocolSettings>
+ </entry>
     </entry>
 </ProtocolSettings>
