@@ -1,0 +1,56 @@
+#!/bin/bash
+
+echo "FYBORG3000 (c) FNNDSC, BCH 2013"
+
+if [ -z "$3" ]
+then
+  echo "USAGE: `basename $0` {FREESURFER_DIR} {DIFFUSION_DICOM_DIR} {OUTPUT_DIR} [-v]"
+  exit 1
+fi
+
+FREESURFER_DIR=$1
+DIFFUSION_DICOM_DIR=$2
+OUTPUT_DIR=$3
+
+VERBOSE='-v'
+if [ -z "$4" ]
+then
+  VERBOSE=''
+fi
+
+#
+# GRAB STUFF FROM THE FREESURFER DIR
+#
+./fy_cherrypick_freesurfer.py -i $FREESURFER_DIR -o $OUTPUT_DIR $VERBOSE
+
+#
+# RUN DTI PREP
+#
+./fy_prep.py -i $DIFFUSION_DICOM_DIR -o $OUTPUT_DIR $VERBOSE
+
+#
+# REGISTER DIFFUSION TO T1
+#
+DIFFUSION_FILE=$OUTPUT_DIR/diffusion.nii.gz
+BRAIN_FILE=$OUTPUT_DIR/brain.nii.gz
+SEGMENTATION_FILE=$OUTPUT_DIR/aparc+aseg.nii.gz
+
+./fy_register.py -i $DIFFUSION_FILE -i2 $SEGMENTATION_FILE -t $BRAIN_FILE -o $OUTPUT_DIR $VERBOSE
+
+#
+# RECONSTRUCT STREAMLINES
+#
+WARPED_SEGMENTATION_FILE=$OUTPUT_DIR/aparc+aseg_to_diffusion.nii.gz
+
+./fy_reconstruct.py -i $DIFFUSION_FILE -m $WARPED_SEGMENTATION_FILE -o $OUTPUT_DIR $VERBOSE
+
+#
+# WARP STREAMLINES
+#
+FIBERS_FILE=$OUTPUT_DIR/fibers.trk
+MATRIX_FILE=$OUTPUT_DIR/diffusion_to_brain.mat
+FIBERS_TO_BRAIN_FILE=$OUTPUT_DIR/fibers_to_brain.trk
+
+./fy_warptracks.py -i $FIBERS_FILE -d $DIFFUSION_FILE -b $BRAIN_FILE -m $MATRIX_FILE -o $FIBERS_TO_BRAIN_FILE $VERBOSE
+
+echo 'ALL DONE FOR FY_WEB.PY!'
