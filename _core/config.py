@@ -3,14 +3,14 @@
 #
 
 # the temporary directory where all data gets migrated before any calculation
-TEMP_DIR = '/tmp'
+TEMP_DIR = '/neuro/tmp'
 
 # the external mri_convert tool
 #  %source%
 #    - the file to convert
 #  %target%
 #    - the output file
-MRICONVERT_COMMAND = '. chb-fs stable; mri_convert %source% %target%'
+MRICONVERT_COMMAND = '. neuro-fs stable; mri_convert %source% %target%'
 
 # the external mris_transform tool
 #  %surface%
@@ -20,7 +20,7 @@ MRICONVERT_COMMAND = '. chb-fs stable; mri_convert %source% %target%'
 #  %output_surface%
 #    - the output surface file
 #
-MRISTRANSFORM_COMMAND = '. chb-fs stable; mris_transform %surface% %matrix% %output_surface%'
+MRISTRANSFORM_COMMAND = '. neuro-fs stable; mris_transform %surface% %matrix% %output_surface%'
 
 # the external mris_decimate tool
 #  %decimation_level%
@@ -29,14 +29,14 @@ MRISTRANSFORM_COMMAND = '. chb-fs stable; mris_transform %surface% %matrix% %out
 #    - the input surface
 #  %output_surface%
 #    - the output surface
-MRISDECIMATE_COMMAND = '. chb-fs stable; mris_decimate -d %decimation_level% %surface% %output_surface%'
+MRISDECIMATE_COMMAND = '. neuro-fs stable; mris_decimate -d %decimation_level% %surface% %output_surface%'
 
 # the external mris_inflate tool
 #  %surface%
 #    - the input surface
 #  %output_surface%
 #    - the output surface
-MRISINFLATE_COMMAND = '. chb-fs stable; mris_inflate %surface% %output_surface%'
+MRISINFLATE_COMMAND = '. neuro-fs stable; mris_inflate %surface% %output_surface%'
 
 # the external diffusion2nrrd tool
 #  %diffusion_directory%
